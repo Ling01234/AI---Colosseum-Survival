@@ -36,5 +36,37 @@ class StudentAgent(Agent):
 
         Please check the sample implementation in agents/random_agent.py or agents/human_agent.py for more details.
         """
-        # dummy return
-        return my_pos, self.dir_map["u"]
+        # Get an array of all possible squares we can move to
+        all_moves = get_moves(chess,_board, my_pos, max_step, "r")
+    
+
+        # Box myself
+        r, c = my_pos
+        if not chess_board[r, c, 3]:
+            return my_pos, self.dir_map["l"]
+        elif not chess_board[r, c, 0]:
+            return my_pos, self.dir_map["u"]
+        elif not chess_board[r, c, 1]:
+            return my_pos, self.dir_map["r"]
+        elif not chess_board[r, c, 2]:
+            return my_pos, self.dir_map["d"]
+
+        
+    def get_moves(self, chess_board, my_pos, max_step, my_dir): 
+        # Base case
+        r, c = my_pos
+        if (max_step == 0 or chess_board[r, c, self.dir_map[my_dir]]):
+            return my_pos
+
+        # Check if hitting a wall/border
+        # Check the right
+        my_pos.append(get_moves(chess_board,(r, c + 1) ,max_step-1, "r")
+
+        # Check the down
+        my_pos.append(get_moves(chess_board,(r + 1, c) ,max_step-1, "d")
+        # Check the left
+        my_pos.append(get_moves(chess_board,(r, c - 1) ,max_step-1, "l")
+        # Check the up
+        my_pos.append(get_moves(chess_board,(r - 1, c) ,max_step-1, "u")
+
+        
