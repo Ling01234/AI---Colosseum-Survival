@@ -1,4 +1,5 @@
 # Student agent: Add your own agent here
+from copy import copy
 from agents.agent import Agent
 from store import register_agent
 import sys
@@ -37,8 +38,7 @@ class StudentAgent(Agent):
         Please check the sample implementation in agents/random_agent.py or agents/human_agent.py for more details.
         """
         # Get an array of all possible squares we can move to
-        all_moves = get_moves(chess,_board, my_pos, max_step, "r")
-    
+        all_moves = get_moves(chess, _board, my_pos, max_step, "r")
 
         # Box myself
         r, c = my_pos
@@ -51,22 +51,32 @@ class StudentAgent(Agent):
         elif not chess_board[r, c, 2]:
             return my_pos, self.dir_map["d"]
 
-        
-    def get_moves(self, chess_board, my_pos, max_step, my_dir): 
-        # Base case
-        r, c = my_pos
-        if (max_step == 0 or chess_board[r, c, self.dir_map[my_dir]]):
-            return my_pos
+    moves = []
 
+    def get_moves(self, chess_board, my_pos, max_step, my_dir, moves):
+        # Base case
+        ori_pos = copy(my_pos)  # create copy of original position
+        r, c = my_pos
         # Check if hitting a wall/border
+        if ((max_step == 0 or chess_board[r, c, self.dir_map[my_dir]]) and ((r, c, my_dir) not in moves)):
+            return moves.append(r, c, my_dir)
+
+        # think we need to backtrack
+
         # Check the right
-        my_pos.append(get_moves(chess_board,(r, c + 1) ,max_step-1, "r")
+        moves.append(r, c + 1, "r")
+        get_moves(chess_board, (r, c + 1), max_step-1, "r", moves)
 
         # Check the down
-        my_pos.append(get_moves(chess_board,(r + 1, c) ,max_step-1, "d")
-        # Check the left
-        my_pos.append(get_moves(chess_board,(r, c - 1) ,max_step-1, "l")
-        # Check the up
-        my_pos.append(get_moves(chess_board,(r - 1, c) ,max_step-1, "u")
+        my_pos.append(r + 1, c, "d")
+        get_moves(chess_board, (r + 1, c), max_step-1, "d", moves)
 
-        
+        # Check the left
+        my_pos.append(r, c - 1, "l")
+        get_moves(chess_board, (r, c - 1), max_step-1, "l", moves)
+
+        # Check the up
+        my_pos.append(r - 1, c, "u")
+        get_moves(chess_board, (r - 1, c), max_step-1, "u", moves)
+
+        return moves
