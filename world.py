@@ -77,7 +77,8 @@ class World:
                     f"Autoplay mode is not supported by one of the agents ({self.p0} -> {self.p0.autoplay}, {self.p1} -> {self.p1.autoplay}). Please set autoplay=True in the agent class."
                 )
 
-        self.player_names = {PLAYER_1_ID: PLAYER_1_NAME, PLAYER_2_ID: PLAYER_2_NAME}
+        self.player_names = {PLAYER_1_ID: PLAYER_1_NAME,
+                             PLAYER_2_ID: PLAYER_2_NAME}
         self.dir_names = {
             DIRECTION_UP: DIRECTION_UP_NAME,
             DIRECTION_RIGHT: DIRECTION_RIGHT_NAME,
@@ -93,17 +94,20 @@ class World:
 
         if board_size is None:
             # Random chessboard size
+            # self.board_size = 5
             self.board_size = np.random.randint(MIN_BOARD_SIZE, MAX_BOARD_SIZE)
             logger.info(
                 f"No board size specified. Randomly generating size : {self.board_size}x{self.board_size}"
             )
         else:
             self.board_size = board_size
-            logger.info(f"Setting board size to {self.board_size}x{self.board_size}")
+            logger.info(
+                f"Setting board size to {self.board_size}x{self.board_size}")
 
         # Index in dim2 represents [Up, Right, Down, Left] respectively
         # Record barriers and boarders for each block
-        self.chess_board = np.zeros((self.board_size, self.board_size, 4), dtype=bool)
+        self.chess_board = np.zeros(
+            (self.board_size, self.board_size, 4), dtype=bool)
 
         # Set borders
         self.chess_board[0, :, 0] = True
@@ -213,7 +217,8 @@ class World:
 
             next_pos = np.asarray(next_pos, dtype=cur_pos.dtype)
             if not self.check_boundary(next_pos):
-                raise ValueError("End position {} is out of boundary".format(next_pos))
+                raise ValueError(
+                    "End position {} is out of boundary".format(next_pos))
             if not 0 <= dir <= 3:
                 raise ValueError(
                     "Barrier dir should reside in [0, 3], but your dir is {}".format(
@@ -443,7 +448,8 @@ class World:
         """
         Render the game board using the UI Engine
         """
-        self.ui_engine.render(self.chess_board, self.p0_pos, self.p1_pos, debug=debug)
+        self.ui_engine.render(self.chess_board, self.p0_pos,
+                              self.p1_pos, debug=debug)
         sleep(self.display_delay)
 
 
