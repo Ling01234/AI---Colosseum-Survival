@@ -1,0 +1,30 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\author{Ling Fei Zhang, 260985358\\
+Brandon Ma, 260983550}
+\begin{document}
+\title{AI Final Project Report Winter 2022}    
+\maketitle
+\section{Motivation}
+\subsection{Approach}
+\paragraph{March 25th 2022}
+Today, we played a few games against each other in order to understand the fundamentals 
+of the game as well as to develop a few basic strategies. Our first instinct is to avoid 
+corners as we can easily get boxed in if we are near corners. This means that we would 
+like to move towards the center. 
+\paragraph{} We also discussed about strategies to inplement our code. First, we need a 
+heuristic function for our agent to evaluate the current position. Given the maximum steps 
+allowed and the heuristic function, the agent will compute an evaluation for each of the 
+reachable squares. The agent will then pick the best square and make its move. Our heuristic 
+function will be based on the following ideas:
+\begin{enumerate}
+    \item In case our heuristic function of a tie between two squares, our agent will prefer to move towards the center.
+    \item Trying to box in the opponent as much as possible.
+    \item Use our agent as a wall to limit the opponent's movement.
+\end{enumerate}
+
+
+\end{document}
