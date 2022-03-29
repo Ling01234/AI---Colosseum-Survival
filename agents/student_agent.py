@@ -60,8 +60,6 @@ class StudentAgent(Agent):
 
     def get_moves(self, chess_board, my_pos, max_step, my_dir):
       
-        print(my_pos)
-        
         r, c = my_pos
     
         self.moves.append(my_pos)
@@ -90,7 +88,7 @@ class StudentAgent(Agent):
         possible_directions = []
 
         for my_dir in self.dir_map:
-            if chess_board[r, c, self.dir_map[my_dir]]:
+            if not chess_board[r, c, self.dir_map[my_dir]]:
                 possible_directions.append(my_dir)
 
         return possible_directions
