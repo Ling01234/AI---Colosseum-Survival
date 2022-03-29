@@ -58,31 +58,31 @@ class StudentAgent(Agent):
         ori_pos = copy(my_pos)  # create copy of original position
         r, c = my_pos
         # Check if hitting a wall/border
-        if ((max_step == 0 or chess_board[r, c, self.dir_map[my_dir]]) and ((r, c, my_dir) not in moves)):
-            return moves.append(r, c, my_dir)
+        if ((max_step == 0 or chess_board[r, c, self.dir_map[my_dir]])):
+            return moves.append(r, c)
 
         # think we need to backtrack
 
         # Check the right
-        moves.append(r, c + 1, "r")
+        moves.append(r, c + 1)
         get_moves(chess_board, (r, c + 1), max_step-1, "r", moves)
 
         # Check the down
-        my_pos.append(r + 1, c, "d")
+        my_pos.append(r + 1, c)
         get_moves(chess_board, (r + 1, c), max_step-1, "d", moves)
 
         # Check the left
-        my_pos.append(r, c - 1, "l")
+        my_pos.append(r, c - 1)
         get_moves(chess_board, (r, c - 1), max_step-1, "l", moves)
 
         # Check the up
-        my_pos.append(r - 1, c, "u")
+        my_pos.append(r - 1, c)
         get_moves(chess_board, (r - 1, c), max_step-1, "u", moves)
 
         return moves
 
-
     # Returns the walls that are possible for a single square
+
     def check_wall(self, r, c):
         possible_directions = []
 
@@ -90,5 +90,7 @@ class StudentAgent(Agent):
             if chess_board[r, c, self.dir_map[my_dir]]:
                 possible_directions.append(my_dir)
 
-
         return possible_directions
+
+    def total_moves(self, moves):
+        pass
