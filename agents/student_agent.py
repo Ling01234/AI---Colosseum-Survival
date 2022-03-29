@@ -43,7 +43,7 @@ class StudentAgent(Agent):
 
         final_moves = self.total_moves(all_moves, chess_board)
 
-        print(final_moves)
+        
 
         # Box myself
         r, c = my_pos
