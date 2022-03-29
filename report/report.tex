@@ -21,11 +21,39 @@ allowed and the heuristic function, the agent will compute an evaluation for eac
 reachable squares. The agent will then pick the best square and make its move. Our heuristic 
 function will be based on the following ideas:
 \begin{enumerate}
+    \item At every turn, agent checks if we can win in 1 (or 2 if allowed) move(s). 
     \item In case our heuristic function of a tie between two squares, our agent will prefer to move towards the center.
+    \item check how many walls are around our agent with a radius of 1 step. 
+    If our agent has many walls next to it, it should try and escape.
+    \item Use minimax and alpha-beta pruning near end-game so that we can search at a deeper depth. 
+    \item Use BFS when evaluating minimax so that we can maximize the depth computed given a time limit. 
     \item Trying to box in the opponent as much as possible.
     \item Use our agent as a wall to limit the opponent's movement.
     \item If the opponent is surround by two walls, try to box the opponent towards the edge of the chess board
+    \item A heuristic based on the number of squares you control (i.e. the squares you can 
+    get to with your moves). The squares that both players control don't count. 
+    \item Opening as player A:
+    \begin{enumerate}
+        \item Move towards the middle, and do NOT put a wall towards the opponent. 
+        The idea is to move towards the center and control the oppoenent's "territory". 
+    \end{enumerate}
+    \item Opening as player B: 
+    \item Middle game: 
+    \item End game: 
+    \begin{enumerate}
+        \item if there exist a wall in the board that we can place to completely divide the two players, then we're 
+        in an end-game.
+        \item (Total number of possible walls in the areas that the players can go to) - constant
+        \item NEED QUANTIFIER TO CHECK HOW MANY SQUARES WE'RE LOSING
+        \item Want to go towards the closing area.
+    \end{enumerate}
 \end{enumerate}
+dddddd
 
+
+Balance between \\
+1) centralization\\
+2) not getting trapped\\
+3) aggressive (blocking opponent's moves)\\
 
 \end{document}
