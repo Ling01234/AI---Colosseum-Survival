@@ -21,6 +21,7 @@ class StudentAgent(Agent):
             "d": 2,
             "l": 3,
         }
+        self.moves = []
 
     def step(self, chess_board, my_pos, adv_pos, max_step):
         """
@@ -38,9 +39,11 @@ class StudentAgent(Agent):
         Please check the sample implementation in agents/random_agent.py or agents/human_agent.py for more details.
         """
         # Get an array of all possible squares we can move to
-        all_moves = get_moves(chess, _board, my_pos, max_step, "r")
+        all_moves = self.get_moves(chess_board, my_pos, max_step, "r")
 
-        final_moves = total_moves(all_moves)
+        final_moves = self.total_moves(all_moves, chess_board)
+
+        print(final_moves)
 
         # Box myself
         r, c = my_pos
@@ -53,36 +56,37 @@ class StudentAgent(Agent):
         elif not chess_board[r, c, 2]:
             return my_pos, self.dir_map["d"]
 
-    moves = []
+    
 
-    def get_moves(self, chess_board, my_pos, max_step, my_dir, moves):
+    def get_moves(self, chess_board, my_pos, max_step, my_dir):
       
+        print(my_pos)
         
         r, c = my_pos
     
-        moves.append(my_pos)
+        self.moves.append(my_pos)
 
         # Check the right
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["r"]] and (r, c + 1) not in moves):
-            get_moves(chess_board, (r, c + 1), max_step-1, "r", moves)
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["r"]] and (r, c + 1) not in self.moves):
+            self.get_moves(chess_board, (r, c + 1), max_step-1, "r")
 
         # Check the down
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["d"]] and (r + 1, c) not in moves):
-            get_moves(chess_board, (r + 1, c), max_step-1, "d", moves)
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["d"]] and (r + 1, c) not in self.moves):
+            self.get_moves(chess_board, (r + 1, c), max_step-1, "d")
 
         # Check the left
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["l"]] and (r, c - 1) not in moves):
-            get_moves(chess_board, (r, c - 1), max_step-1, "l", moves)
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["l"]] and (r, c - 1) not in self.moves):
+            self.get_moves(chess_board, (r, c - 1), max_step-1, "l")
 
         # Check the up
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["u"]] and (r - 1, c) not in moves):
-            get_moves(chess_board, (r - 1, c), max_step-1, "u", moves)
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["u"]] and (r - 1, c) not in self.moves):
+            self.get_moves(chess_board, (r - 1, c), max_step-1, "u")
 
-        return moves
+        return self.moves
+
 
     # Returns the walls that are possible for a single square
-
-    def check_wall(self, r, c):
+    def check_wall(self, r, c,chess_board):
         possible_directions = []
 
         for my_dir in self.dir_map:
@@ -91,12 +95,12 @@ class StudentAgent(Agent):
 
         return possible_directions
 
-    def total_moves(self, moves):
+    def total_moves(self, moves, chess_board):
         final_moves = []
 
         for pos in moves:
             r,c = pos
-            possible_directions = check_wall(r,c)
+            possible_directions = self.check_wall(r,c, chess_board)
             for direction in possible_directions:
                 new_tuple = (r, c, direction)
                 final_moves.append(new_tuple)
