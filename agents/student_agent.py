@@ -80,3 +80,15 @@ class StudentAgent(Agent):
         get_moves(chess_board, (r - 1, c), max_step-1, "u", moves)
 
         return moves
+
+
+    # Returns the walls that are possible for a single square
+    def check_wall(self, r, c):
+        possible_directions = []
+
+        for my_dir in self.dir_map:
+            if chess_board[r, c, self.dir_map[my_dir]]:
+                possible_directions.append(my_dir)
+
+
+        return possible_directions
