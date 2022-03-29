@@ -40,6 +40,8 @@ class StudentAgent(Agent):
         # Get an array of all possible squares we can move to
         all_moves = get_moves(chess, _board, my_pos, max_step, "r")
 
+        final_moves = total_moves(all_moves)
+
         # Box myself
         r, c = my_pos
         if not chess_board[r, c, 3]:
@@ -54,14 +56,10 @@ class StudentAgent(Agent):
     moves = []
 
     def get_moves(self, chess_board, my_pos, max_step, my_dir, moves):
-        # Base case
-        # ori_pos = copy(my_pos)  # create copy of original position
+      
+        
         r, c = my_pos
-        # Check if hitting a wall/border
-        # if ((max_step == 0 or chess_board[r, c, self.dir_map[my_dir]])):
-        #     return moves.append(r, c)
-
-        # think we need to backtrack
+    
         moves.append(my_pos)
 
         # Check the right
@@ -94,4 +92,13 @@ class StudentAgent(Agent):
         return possible_directions
 
     def total_moves(self, moves):
-        pass
+        final_moves = []
+
+        for pos in moves:
+            r,c = pos
+            possible_directions = check_wall(r,c)
+            for direction in possible_directions:
+                new_tuple = (r, c, direction)
+                final_moves.append(new_tuple)
+           
+        return final_moves
