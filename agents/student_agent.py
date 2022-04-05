@@ -46,18 +46,7 @@ class StudentAgent(Agent):
         all_moves = self.moves
 
         final_moves = self.total_moves(all_moves, chess_board)
-        print(self.moves)
-        # # Box myself
-        # r, c = my_pos
-        # if not chess_board[r, c, 3]:
-        #     return my_pos, self.dir_map["l"]
-        # elif not chess_board[r, c, 0]:
-        #     return my_pos, self.dir_map["u"]
-        # elif not chess_board[r, c, 1]:
-        #     return my_pos, self.dir_map["r"]
-        # elif not chess_board[r, c, 2]:
-        #     return my_pos, self.dir_map["d"]
-
+    
         mate = self.check_instant_win(
             my_pos, adv_pos, chess_board, final_moves)
         print(mate)
@@ -65,10 +54,6 @@ class StudentAgent(Agent):
             return mate[0]
 
         
-        # else:
-        #     print("else")
-        #     return final_moves[0]
-        # return final_moves[0]
 
     def get_moves(self, chess_board, my_pos, max_step, my_dir):
 
@@ -455,3 +440,9 @@ class StudentAgent(Agent):
         return count
 
 # -----------------------------------------------------------------------------------------------------------------
+    def set_barrier(self,chess_board, r, c, dir):
+        # Set the barrier to True
+        chess_board[r, c, dir] = True
+        # Set the opposite barrier to True
+        move = self.directions[dir]
+        chess_board[r + move[0], c + move[1], self.opposites[dir]] = True
