@@ -7,6 +7,7 @@ from store import register_agent
 import sys
 import numpy as np
 import time
+import random
 
 
 @register_agent("student_agent")
@@ -74,13 +75,12 @@ class StudentAgent(Agent):
             return good_move
         
         if len(ok_moves)!=0:
-            return ok_moves[0]
+            return random.choice(ok_moves)
 
         try:
-            return final_moves[0]
+            return random.choice(final_moves)
         except:
-            print(final_moves)
-            return
+            return self.random_walk(my_pos, adv_pos, max_step,chess_board)
             
 
         for depth in range(100):
@@ -92,7 +92,7 @@ class StudentAgent(Agent):
                 bestscore, bestmove = score, move
                 return bestmove
 
-    def get_moves(self, chess_board, my_pos, max_step, adv_pos,moves):
+    def get_moves(self, chess_board, my_pos, max_step, adv_pos, moves):
 
         r, c = my_pos
         adv_r, adv_c = adv_pos
@@ -116,7 +116,53 @@ class StudentAgent(Agent):
             moves + self.get_moves(chess_board, (r - 1, c), max_step-1,adv_pos, moves)
 
         return moves
+    
+    
+    # --------------------------------------------------------------------------------------------------------------------------------------
 
+    def random_walk(self, my_pos, adv_pos, max_step, chess_board):
+        """
+        Randomly walk to the next position in the board.
+
+        Parameters
+        ----------
+        my_pos : tuple
+            The position of the agent.
+        adv_pos : tuple
+            The position of the adversary.
+        """
+        ori_pos = deepcopy(my_pos)
+        steps = np.random.randint(0, max_step + 1)
+        # Random Walk
+        for _ in range(steps):
+            r, c = my_pos
+            dir = np.random.randint(0, 4)
+            m_r, m_c = ((-1, 0), (0, 1), (1, 0), (0, -1))[dir]
+            my_pos = (r + m_r, c + m_c)
+
+            # Special Case enclosed by Adversary
+            k = 0
+            while chess_board[r, c, dir] or my_pos == adv_pos:
+                k += 1
+                if k > 300:
+                    break
+                dir = np.random.randint(0, 4)
+                m_r, m_c = ((-1, 0), (0, 1), (1, 0), (0, -1))[dir]
+                my_pos = (r + m_r, c + m_c)
+
+            if k > 300:
+                my_pos = ori_pos
+                break
+
+        # Put Barrier
+        dir = np.random.randint(0, 4)
+        r, c = my_pos
+        while chess_board[r, c, dir]:
+            dir = np.random.randint(0, 4)
+
+        return my_pos, dir
+
+    # --------------------------------------------------------------------------------------------------------------------------------------
 
     # Returns the walls that are possible for a single square
     def check_wall(self, r, c, chess_board):
