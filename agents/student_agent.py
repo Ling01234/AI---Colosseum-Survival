@@ -1,8 +1,12 @@
 # Student agent: Add your own agent here
 from copy import copy, deepcopy
+from platform import node
+from unittest.case import _BaseTestCaseContext
 from agents.agent import Agent
 from store import register_agent
 import sys
+import numpy as np
+import time
 
 
 @register_agent("student_agent")
@@ -21,7 +25,7 @@ class StudentAgent(Agent):
             "d": 2,
             "l": 3,
         }
-        self.moves = []
+        # self.moves = []
         self.opposites = {0: 2, 1: 3, 2: 0, 3: 1}
         self.directions = ((-1, 0), (0, 1), (1, 0), (0, -1))
 
@@ -41,45 +45,58 @@ class StudentAgent(Agent):
         Please check the sample implementation in agents/random_agent.py or agents/human_agent.py for more details.
         """
         # Get an array of all possible squares we can move to
-        self.moves = []
-        self.get_moves(chess_board, my_pos, max_step, "r")
-        all_moves = self.moves
+        # self.moves = []
 
-        final_moves = self.total_moves(all_moves, chess_board)
-    
+        # time constraint
+        global start_time
+        start_time = time.time()
+        global move_time
+        move_time = 1.95
+
+        moves = self.get_moves(chess_board, my_pos, max_step, [])
+        final_moves = self.total_moves(moves, chess_board)
+        # check if mating is possible
         mate = self.check_instant_win(
             my_pos, adv_pos, chess_board, final_moves)
         print(mate)
         if len(mate) != 0:
             return mate[0]
 
-        
+        for depth in range(100):
+            score, move = self.alpha_beta(
+                (my_pos, 1), chess_board, max_step, depth, -np.inf, np.inf)
 
-    def get_moves(self, chess_board, my_pos, max_step, my_dir):
+            # save move on time out
+            if move:
+                bestscore, bestmove = score, move
+                return bestmove
+
+    def get_moves(self, chess_board, my_pos, max_step, moves):
 
         r, c = my_pos
 
-        self.moves.append(my_pos)
+        moves.append(my_pos)
 
         # Check the right
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["r"]] and (r, c + 1) not in self.moves):
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["r"]] and (r, c + 1) not in moves):
             self.get_moves(chess_board, (r, c + 1), max_step-1, "r")
 
         # Check the down
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["d"]] and (r + 1, c) not in self.moves):
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["d"]] and (r + 1, c) not in moves):
             self.get_moves(chess_board, (r + 1, c), max_step-1, "d")
 
         # Check the left
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["l"]] and (r, c - 1) not in self.moves):
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["l"]] and (r, c - 1) not in moves):
             self.get_moves(chess_board, (r, c - 1), max_step-1, "l")
 
         # Check the up
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["u"]] and (r - 1, c) not in self.moves):
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["u"]] and (r - 1, c) not in moves):
             self.get_moves(chess_board, (r - 1, c), max_step-1, "u")
 
-        #return self.moves
+        return moves
 
     # Returns the walls that are possible for a single square
+
     def check_wall(self, r, c, chess_board):
         possible_directions = []
 
@@ -111,7 +128,7 @@ class StudentAgent(Agent):
             # Set the opposite barrier to True
             move1 = self.directions[dir]
             chess_board[r + move1[0], c + move1[1], self.opposites[dir]] = True
-            
+
             is_endgame, my_score, adv_score = self.check_endgame(
                 chess_board, pos, adv_pos, move)
             if is_endgame and my_score > adv_score:
@@ -119,13 +136,15 @@ class StudentAgent(Agent):
                 chess_board[r, c, dir] = False
                 # Set the opposite barrier to True
                 move1 = self.directions[dir]
-                chess_board[r + move1[0], c + move1[1], self.opposites[dir]] = False
+                chess_board[r + move1[0], c + move1[1],
+                            self.opposites[dir]] = False
                 return mate
             # Set the barrier to True
             chess_board[r, c, dir] = False
             # Set the opposite barrier to True
             move1 = self.directions[dir]
-            chess_board[r + move1[0], c + move1[1], self.opposites[dir]] = False
+            chess_board[r + move1[0], c + move1[1],
+                        self.opposites[dir]] = False
 
         return []
 
@@ -170,15 +189,12 @@ class StudentAgent(Agent):
                     if pos_a != pos_b:
                         union(pos_a, pos_b)
 
-
-
         for r in range(chess_board.shape[0]):
             for c in range(chess_board.shape[0]):
                 find((r, c))
 
         p0_r = find(my_pos)
         p1_r = find(adv_pos)
-
 
         my_score = list(father.values()).count(p0_r)
         adv_score = list(father.values()).count(p1_r)
@@ -440,9 +456,60 @@ class StudentAgent(Agent):
         return count
 
 # -----------------------------------------------------------------------------------------------------------------
-    def set_barrier(self,chess_board, r, c, dir):
+    def set_barrier(self, chess_board, r, c, dir):
         # Set the barrier to True
         chess_board[r, c, dir] = True
         # Set the opposite barrier to True
         move = self.directions[dir]
         chess_board[r + move[0], c + move[1], self.opposites[dir]] = True
+
+    # initialize a graph of depth n
+    bestscore = -np.inf
+
+    def alpha_beta(self, move, chess_board, max_step, depth, alpha, beta):
+        if time.time() - start_time > move_time:
+            return None, None
+
+        #bestmove and bestscore
+
+        if depth == 0:
+            return self.heuristic(move)
+
+        def find(move1):
+            pos, dir = move1
+            moves = self.get_moves(chess_board, pos, max_step, [])
+            return self.total_moves(moves, chess_board)
+
+        final_moves = find(move)
+
+        for m in final_moves:
+            # WRITE MAKEMOVE
+            self.makemove(m)
+            next_moves = find(m)
+            score = -self.alpha_beta(m, chess_board,
+                                     max_step - 1, -alpha, -beta)
+            if score > bestscore:
+                bestscore = score
+                # WRITE UNDOMOVE
+            self.undomove(m)
+            if bestscore > alpha:
+                alpha = bestscore
+            if alpha >= beta:
+                break
+
+        return bestscore
+
+    # visited = []
+    # queue = []
+
+    # def bfs(self, visited, graph, move):
+
+    #     pos, dir = move
+    #     r, c = move
+    #     visited.append(move)
+    #     queue.append(move)
+
+    #     while queue:
+    #         s = queue.pop(0)
+    #         print(s, end=" ")
+    #     pass
