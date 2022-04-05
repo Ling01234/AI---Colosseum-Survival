@@ -3,7 +3,6 @@ from copy import copy
 from agents.agent import Agent
 from store import register_agent
 import sys
-import world
 
 
 @register_agent("student_agent")
@@ -43,7 +42,7 @@ class StudentAgent(Agent):
         all_moves = self.get_moves(chess_board, my_pos, max_step, "r")
 
         final_moves = self.total_moves(all_moves, chess_board)
-
+        print(final_moves)
         # # Box myself
         # r, c = my_pos
         # if not chess_board[r, c, 3]:
@@ -57,8 +56,14 @@ class StudentAgent(Agent):
 
         mate = self.check_instant_win(
             my_pos, adv_pos, chess_board, final_moves)
+        print(mate)
         if len(mate) != 0:
             return mate[0]
+
+        # else:
+        #     print("else")
+        #     return final_moves[0]
+        # return final_moves[0]
 
     def get_moves(self, chess_board, my_pos, max_step, my_dir):
 
@@ -101,7 +106,7 @@ class StudentAgent(Agent):
             r, c = pos
             possible_directions = self.check_wall(r, c, chess_board)
             for direction in possible_directions:
-                new_tuple = (r, c, direction)
+                new_tuple = ((r, c), self.dir_map[direction])
                 final_moves.append(new_tuple)
 
         return final_moves
@@ -110,44 +115,20 @@ class StudentAgent(Agent):
         mate = []
         original_board = copy(chess_board)
         for move in moves:
+            pos, dir = move
+            r, c = pos
+            original_board[r, c, dir] = True
             is_endgame, my_score, adv_score = self.check_endgame(
-                original_board, my_pos, adv_pos)
-            if is_endgame == True and my_score > adv_score:
-                return mate.append(move)
+                original_board, pos, adv_pos)
+            if is_endgame and my_score > adv_score:
+                print("IS_ENDGAME = TRUE")
+                mate.append(move)
+                # print("MATE:")
+                # print(mate)
+                return mate
             original_board = chess_board
 
         return []
-
-        # adv_x, adv_y = adv_pos
-        # possible_directions = self.check_wall(adv_x, adv_y, chess_board)
-
-        # if possible_directions.length == 1:
-
-        #     for move in moves:
-        #         x, y, dir = move
-        #         if (x == adv_x and y == adv_y - 1):
-        #             if possible_directions[0] == "r":
-        #                 mate.append(move)
-
-        #         elif (x == adv_x and y == adv_y + 1):
-        #             if possible_directions[0] == "l":
-        #                 mate.append(move)
-
-        #         elif (y == adv_y and x == adv_x - 1):
-        #             if possible_directions[0] == "d":
-        #                 mate.append(move)
-
-        #         elif (y == adv_y and x == adv_x + 1):
-        #             if possible_directions[0] == "u":
-        #                 mate.append(move)
-
-        #     return mate
-
-        # else:
-        #     return []
-
-        # for move in moves:
-        #     if
 
     def check_endgame(self, chess_board, my_pos, adv_pos):
         """
@@ -162,6 +143,7 @@ class StudentAgent(Agent):
         player_2_score : int
             The score of player 2.
         """
+
         # Union-Find
         father = dict()
         for r in range(chess_board.shape[0]):
@@ -183,6 +165,7 @@ class StudentAgent(Agent):
                 ):  # Only check down and right
                     if chess_board[r, c, dir + 1]:
                         continue
+
                     pos_a = find((r, c))
                     pos_b = find((r + move[0], c + move[1]))
                     if pos_a != pos_b:
@@ -191,15 +174,18 @@ class StudentAgent(Agent):
         for r in range(chess_board.shape[0]):
             for c in range(chess_board.shape[0]):
                 find((r, c))
+
         p0_r = find(tuple(my_pos))
         p1_r = find(tuple(adv_pos))
         my_score = list(father.values()).count(p0_r)
         adv_score = list(father.values()).count(p1_r)
+
         if p0_r == p1_r:
             return False, my_score, adv_score
         player_win = None
         win_blocks = -1
         if my_score > adv_score:
+            print("CHECK ENDGAME7!!!!!!!!!!!!")
             player_win = 0
             win_blocks = my_score
         elif my_score < adv_score:
