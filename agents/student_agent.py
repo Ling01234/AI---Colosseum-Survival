@@ -130,10 +130,7 @@ class StudentAgent(Agent):
             is_endgame, my_score, adv_score = self.check_endgame(
                 chess_board, pos, adv_pos, move)
             if is_endgame and my_score > adv_score:
-                print("IS_ENDGAME = TRUE")
                 mate.append(move)
-                # print("MATE:")
-                # print(mate)
                 chess_board[r, c, dir] = False
                 # Set the opposite barrier to True
                 move1 = self.directions[dir]
@@ -160,12 +157,6 @@ class StudentAgent(Agent):
         player_2_score : int
             The score of player 2.
         """
-        print(moveit,"-----------------------------")
-        for r in range(chess_board.shape[0]):
-            for c in range(chess_board.shape[0]):
-                for i in range(0,4):
-                    if (chess_board[r,c,i]):
-                        print("(",r,", ",c," ", i,"): ",chess_board[r,c,i])
 
         # Union-Find
         father = dict()
@@ -202,11 +193,7 @@ class StudentAgent(Agent):
 
         p0_r = find(my_pos)
         p1_r = find(adv_pos)
-        wallls = self.check_surroundings_walls(adv_pos, chess_board, 0)
-        #print(moveit,"-----------------------------")
-        print("p0 father: ", p0_r)
-        print("p1 father: ", p1_r)
-        print("Number of walls around me: ", wallls)
+
 
         my_score = list(father.values()).count(p0_r)
         adv_score = list(father.values()).count(p1_r)
@@ -216,7 +203,6 @@ class StudentAgent(Agent):
         player_win = None
         win_blocks = -1
         if my_score > adv_score:
-            print("CHECK ENDGAME7!!!!!!!!!!!!")
             player_win = 0
             win_blocks = my_score
         elif my_score < adv_score:
