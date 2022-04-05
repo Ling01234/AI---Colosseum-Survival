@@ -1,5 +1,5 @@
 # Student agent: Add your own agent here
-from copy import copy
+from copy import copy, deepcopy
 from agents.agent import Agent
 from store import register_agent
 import sys
@@ -22,6 +22,8 @@ class StudentAgent(Agent):
             "l": 3,
         }
         self.moves = []
+        self.opposites = {0: 2, 1: 3, 2: 0, 3: 1}
+        self.directions = ((-1, 0), (0, 1), (1, 0), (0, -1))
 
     def step(self, chess_board, my_pos, adv_pos, max_step):
         """
@@ -39,10 +41,12 @@ class StudentAgent(Agent):
         Please check the sample implementation in agents/random_agent.py or agents/human_agent.py for more details.
         """
         # Get an array of all possible squares we can move to
-        all_moves = self.get_moves(chess_board, my_pos, max_step, "r")
+        self.moves = []
+        self.get_moves(chess_board, my_pos, max_step, "r")
+        all_moves = self.moves
 
         final_moves = self.total_moves(all_moves, chess_board)
-        print(final_moves)
+        print(self.moves)
         # # Box myself
         # r, c = my_pos
         # if not chess_board[r, c, 3]:
@@ -60,6 +64,7 @@ class StudentAgent(Agent):
         if len(mate) != 0:
             return mate[0]
 
+        
         # else:
         #     print("else")
         #     return final_moves[0]
@@ -87,7 +92,7 @@ class StudentAgent(Agent):
         if (max_step != 0 and not chess_board[r, c, self.dir_map["u"]] and (r - 1, c) not in self.moves):
             self.get_moves(chess_board, (r - 1, c), max_step-1, "u")
 
-        return self.moves
+        #return self.moves
 
     # Returns the walls that are possible for a single square
     def check_wall(self, r, c, chess_board):
@@ -113,24 +118,36 @@ class StudentAgent(Agent):
 
     def check_instant_win(self, my_pos, adv_pos, chess_board, moves):
         mate = []
-        original_board = copy(chess_board)
         for move in moves:
             pos, dir = move
             r, c = pos
-            original_board[r, c, dir] = True
+            # Set the barrier to True
+            chess_board[r, c, dir] = True
+            # Set the opposite barrier to True
+            move1 = self.directions[dir]
+            chess_board[r + move1[0], c + move1[1], self.opposites[dir]] = True
+            
             is_endgame, my_score, adv_score = self.check_endgame(
-                original_board, pos, adv_pos)
+                chess_board, pos, adv_pos, move)
             if is_endgame and my_score > adv_score:
                 print("IS_ENDGAME = TRUE")
                 mate.append(move)
                 # print("MATE:")
                 # print(mate)
+                chess_board[r, c, dir] = False
+                # Set the opposite barrier to True
+                move1 = self.directions[dir]
+                chess_board[r + move1[0], c + move1[1], self.opposites[dir]] = False
                 return mate
-            original_board = chess_board
+            # Set the barrier to True
+            chess_board[r, c, dir] = False
+            # Set the opposite barrier to True
+            move1 = self.directions[dir]
+            chess_board[r + move1[0], c + move1[1], self.opposites[dir]] = False
 
         return []
 
-    def check_endgame(self, chess_board, my_pos, adv_pos):
+    def check_endgame(self, chess_board, my_pos, adv_pos, moveit):
         """
         Check if the game ends and compute the current score of the agents.
 
@@ -143,6 +160,12 @@ class StudentAgent(Agent):
         player_2_score : int
             The score of player 2.
         """
+        print(moveit,"-----------------------------")
+        for r in range(chess_board.shape[0]):
+            for c in range(chess_board.shape[0]):
+                for i in range(0,4):
+                    if (chess_board[r,c,i]):
+                        print("(",r,", ",c," ", i,"): ",chess_board[r,c,i])
 
         # Union-Find
         father = dict()
@@ -163,7 +186,7 @@ class StudentAgent(Agent):
                 for dir, move in enumerate(
                     ((-1, 0), (0, 1), (1, 0), (0, -1))[1:3]
                 ):  # Only check down and right
-                    if chess_board[r, c, dir + 1]:
+                    if chess_board[r, c, dir+1]:
                         continue
 
                     pos_a = find((r, c))
@@ -171,12 +194,20 @@ class StudentAgent(Agent):
                     if pos_a != pos_b:
                         union(pos_a, pos_b)
 
+
+
         for r in range(chess_board.shape[0]):
             for c in range(chess_board.shape[0]):
                 find((r, c))
 
-        p0_r = find(tuple(my_pos))
-        p1_r = find(tuple(adv_pos))
+        p0_r = find(my_pos)
+        p1_r = find(adv_pos)
+        wallls = self.check_surroundings_walls(adv_pos, chess_board, 0)
+        #print(moveit,"-----------------------------")
+        print("p0 father: ", p0_r)
+        print("p1 father: ", p1_r)
+        print("Number of walls around me: ", wallls)
+
         my_score = list(father.values()).count(p0_r)
         adv_score = list(father.values()).count(p1_r)
 
