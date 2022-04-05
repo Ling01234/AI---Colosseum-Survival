@@ -209,3 +209,246 @@ class StudentAgent(Agent):
             player_win = -1  # Tie
 
         return True, my_score, adv_score
+
+    # --------------------------------------------------------------------------------------------------------------------------------------
+
+    # Returns a number of walls around the player n squares away (ONLY RETURNS THE NUMBER OF OUTSIDE WALLS, NOT INSIDE ONES)
+
+    def check_surrounding_outside_walls(self, my_pos, chess_board, n):
+        count = 0
+        startRow, startColumn = my_pos
+        maxCoord = chess_board.shape[0]
+
+        # Check top-right border + top square
+        row = startRow - n
+        column = startColumn
+        cutoffCheck = 0
+        while column < maxCoord and row >= 0 and column <= startColumn + n:
+            if chess_board[row, column, 0]:
+                count = count + 1
+
+            column = column + 1
+            cutoffCheck = cutoffCheck + 1
+
+        # Need this to check if one side got cut off early (check ipad for further explanation)
+        if cutoffCheck - 1 != n and startRow - n >= 0:
+            count = count + 1
+
+        # Check top-left border excluding top square
+        row = startRow - n
+        column = startColumn - 1
+        cutoffCheck = 1
+        while column >= 0 and row >= 0 and column >= startColumn - n:
+            if chess_board[row, column, 0]:
+                count = count + 1
+
+            column = column - 1
+            cutoffCheck = cutoffCheck + 1
+
+        # Need this to check if one side got cut off early (check ipad for further explanation)
+        if cutoffCheck - 1 != n and startRow - n >= 0:
+            count = count + 1
+
+        # Check right-up border + right square
+        row = startRow
+        column = startColumn + n
+        cutoffCheck = 0
+        while column < maxCoord and row >= 0 and row >= startRow - n:
+            if chess_board[row, column, 1]:
+                count = count + 1
+
+            row = row - 1
+            cutoffCheck = cutoffCheck + 1
+
+        # Need this to check if one side got cut off early (check ipad for further explanation)
+        if cutoffCheck - 1 != n and startColumn + n < maxCoord:
+            count = count + 1
+
+        # Check right-down border excluding right square
+        row = startRow + 1
+        column = startColumn + n
+        cutoffCheck = 1
+        while column < maxCoord and row < maxCoord and row <= startRow + n:
+            if chess_board[row, column, 1]:
+                count = count + 1
+
+            row = row + 1
+            cutoffCheck = cutoffCheck + 1
+
+        # Need this to check if one side got cut off early (check ipad for further explanation)
+        if cutoffCheck - 1 != n and startColumn + n < maxCoord:
+            count = count + 1
+
+        # Check bottom-right border + bottom square
+        row = startRow + n
+        column = startColumn
+        cutoffCheck = 0
+        while column < maxCoord and row < maxCoord and column <= startColumn + n:
+            if chess_board[row, column, 2]:
+                count = count + 1
+
+            column = column + 1
+            cutoffCheck = cutoffCheck + 1
+
+        # Need this to check if one side got cut off early (check ipad for further explanation)
+        if cutoffCheck - 1 != n and startRow + n < maxCoord:
+            count = count + 1
+
+        # Check bottom-left border excluding bottom square
+        row = startRow + n
+        column = startColumn - 1
+        cutoffCheck = 1
+        while column >= 0 and row < maxCoord and column >= startColumn - n:
+            if chess_board[row, column, 2]:
+                count = count + 1
+
+            column = column - 1
+            cutoffCheck = cutoffCheck + 1
+
+        # Need this to check if one side got cut off early (check ipad for further explanation)
+        if cutoffCheck - 1 != n and startRow + n < maxCoord:
+            count = count + 1
+
+        # Check left-up border + left square
+        row = startRow
+        column = startColumn - n
+        cutoffCheck = 0
+        while column >= 0 and row >= 0 and row >= startRow - n:
+            if chess_board[row, column, 3]:
+                count = count + 1
+
+            row = row - 1
+            cutoffCheck = cutoffCheck + 1
+
+        # Need this to check if one side got cut off early (check ipad for further explanation)
+        if cutoffCheck - 1 != n and startColumn - n >= 0:
+            count = count + 1
+
+        # Check left-down border excluding left square
+        row = startRow + 1
+        column = startColumn - n
+        cutoffCheck = 1
+        while column >= 0 and row < maxCoord and row <= startRow + n:
+            if chess_board[row, column, 3]:
+                count = count + 1
+
+            row = row + 1
+            cutoffCheck = cutoffCheck + 1
+
+        # Need this to check if one side got cut off early (check ipad for further explanation)
+        if cutoffCheck - 1 != n and startColumn - n >= 0:
+            count = count + 1
+
+        return count
+    # Returns a number of walls around the player n squares away (ONLY RETURNS THE NUMBER OF INSIDE WALLS, NOT OUTSIDE ONES)
+
+    def check_surrounding_inside_walls(self, my_pos, chess_board, n):
+        count = 0
+        startRow, startColumn = my_pos
+        maxCoord = chess_board.shape[0]
+
+        # Check top-right border
+        row = startRow - n
+        column = startColumn + 1
+        while column < maxCoord and row >= 0 and column <= startColumn + n:
+            # Check the left border
+            if chess_board[row, column, 3]:
+                count = count + 1
+
+            column = column + 1
+
+        # Check top-left border
+        row = startRow - n
+        column = startColumn - 1
+
+        while column >= 0 and row >= 0 and column >= startColumn - n:
+            # Check the right border
+            if chess_board[row, column, 1]:
+                count = count + 1
+
+            column = column - 1
+
+        # Check right-up border
+        row = startRow - 1
+        column = startColumn + n
+
+        while column < maxCoord and row >= 0 and row >= startRow - n:
+            # Check the bottom border
+            if chess_board[row, column, 2]:
+                count = count + 1
+
+            row = row - 1
+
+        # Check right-down border
+        row = startRow + 1
+        column = startColumn + n
+
+        while column < maxCoord and row < maxCoord and row <= startRow + n:
+            # Check the top border
+            if chess_board[row, column, 0]:
+                count = count + 1
+
+            row = row + 1
+
+        # Check bottom-right border
+        row = startRow + n
+        column = startColumn + 1
+        cutoffCheck = 0
+        while column < maxCoord and row < maxCoord and column <= startColumn + n:
+            # Check the left border
+            if chess_board[row, column, 3]:
+                count = count + 1
+
+            column = column + 1
+
+        # Check bottom-left border
+        row = startRow + n
+        column = startColumn - 1
+
+        while column >= 0 and row < maxCoord and column >= startColumn - n:
+            # Check the right border
+            if chess_board[row, column, 1]:
+                count = count + 1
+
+            column = column - 1
+
+        # Check left-up border
+        row = startRow - 1
+        column = startColumn - n
+        cutoffCheck = 0
+        while column >= 0 and row >= 0 and row >= startRow - n:
+            # Check the bottom border
+            if chess_board[row, column, 2]:
+                count = count + 1
+
+            row = row - 1
+
+        # Check left-down border
+        row = startRow + 1
+        column = startColumn - n
+
+        while column >= 0 and row < maxCoord and row <= startRow + n:
+            # Check the top border
+            if chess_board[row, column, 0]:
+                count = count + 1
+
+            row = row + 1
+
+        return count
+    # Gets all surrounding walls around the player up to n squares away
+
+    def check_surroundings_walls(self, my_pos, chess_board, n):
+        count = 0
+
+        for i in range(0, n+1):
+            count = count + \
+                self.check_surrounding_outside_walls(
+                    my_pos, chess_board, i)/(i+1)
+            if i > 0:
+                count = count + \
+                    self.check_surrounding_inside_walls(
+                        my_pos, chess_board, i)/(i+1)
+
+        return count
+
+# -----------------------------------------------------------------------------------------------------------------
