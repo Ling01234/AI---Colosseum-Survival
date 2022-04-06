@@ -87,7 +87,7 @@ class StudentAgent(Agent):
         
         bestMove = 0
         score = 0
-        for depth in range(100):
+        for depth in range(10):
             l = {}
             
             for move in ok_moves:
@@ -710,21 +710,21 @@ class StudentAgent(Agent):
 
         end = self.check_endgame(chess_board, my_pos, adv_pos)
 
-        if end[0]:
-            if maxPlayer:
-                if end[1] > end[2]:
-                    return np.inf
-                elif end[1] < end[2]:
-                    return -np.inf
-                else:
-                    return 0
-            else:
-                if end[1] > end[2]:
-                    return -np.inf
-                elif end[1] < end[2]:
-                    return np.inf
-                else:
-                    return 0
+        # if end[0]:
+        #     if maxPlayer:
+        #         if end[1] > end[2]:
+        #             return np.inf
+        #         elif end[1] < end[2]:
+        #             return -np.inf
+        #         else:
+        #             return 0
+        #     else:
+        #         if end[1] > end[2]:
+        #             return -np.inf
+        #         elif end[1] < end[2]:
+        #             return np.inf
+        #         else:
+        #             return 0
         
         if depth == 0:
             return self.heuristic_function(chess_board, my_pos, adv_pos, max_step)
