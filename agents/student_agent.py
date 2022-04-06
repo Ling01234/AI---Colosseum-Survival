@@ -31,6 +31,7 @@ class StudentAgent(Agent):
         self.directions = ((-1, 0), (0, 1), (1, 0), (0, -1))
         self.pointsBoard = []
         self.firstTurn = True
+        self.startTime = 0
 
     def step(self, chess_board, my_pos, adv_pos, max_step):
         """
@@ -47,21 +48,21 @@ class StudentAgent(Agent):
 
         Please check the sample implementation in agents/random_agent.py or agents/human_agent.py for more details.
         """
-        if self.firstTurn:
-            self.initialize_points_board(chess_board)
-       
-
         # time constraint
         global start_time
         start_time = time.time()
         global move_time
         move_time = 1.95
 
+
+        if self.firstTurn:
+            self.initialize_points_board(chess_board)
+        
+
         moves = self.get_moves(chess_board, my_pos, max_step, adv_pos, [])  # Get an array of all possible squares we can move to
         final_moves = self.total_moves(moves, chess_board)
 
-        ok_moves = self.remove_suicidal_moves(
-            my_pos, adv_pos, chess_board, final_moves)
+        ok_moves = self.remove_suicidal_moves(my_pos, adv_pos, chess_board, final_moves)
 
         # check if mating is possible
         mate = self.check_instant_win(
@@ -70,30 +71,50 @@ class StudentAgent(Agent):
         if len(mate) != 0:
             return mate[0]
 
-        bad_move = self.remove_box_myself(my_pos, chess_board)
-        if bad_move != 0 and bad_move in ok_moves:
-            ok_moves.remove(bad_move)
+        #print(ok_moves)
+        # bad_move = self.remove_box_myself(my_pos, chess_board)
+        # if bad_move != 0 and bad_move in ok_moves:
+        #     ok_moves.remove(bad_move)
 
-        good_move = self.box_opponent(adv_pos, chess_board)
-        if good_move != 0 and good_move in final_moves:
-            return good_move
+        # good_move = self.box_opponent(adv_pos, chess_board)
+        # if good_move != 0 and good_move in final_moves:
+        #     return good_move
 
-        if len(ok_moves) != 0:
-            return random.choice(ok_moves)
+        # if len(ok_moves) != 0:
+        #     return random.choice(ok_moves)
 
-        try:
-            return random.choice(final_moves)
-        except:
-            return self.random_walk(my_pos, adv_pos, max_step, chess_board)
-
+        # try:
+        
+        bestMove = 0
+        score = 0
         for depth in range(100):
-            score, move = self.alpha_beta(
-                (my_pos, 1), chess_board, max_step, depth, -np.inf, np.inf)
+            l = {}
+            
+            for move in ok_moves:
+                chess_board, new_pos = self.makemove(chess_board, move)
+                temp = my_pos
+                
+                score = self.alpha_beta(chess_board, max_step, depth, -np.inf, np.inf,new_pos,adv_pos, True)
+                
+                chess_board = self.undomove(chess_board, move)
+                my_pos = temp
+                
+                l[move] = score
 
-            # save move on time out
-            if move:
-                bestscore, bestmove = score, move
-                return bestmove
+            if score != None:
+                
+                bestMove = max(l)
+            else:
+                print(l)
+                return bestMove
+        
+        return bestMove
+        # except:
+        #     return self.random_walk(my_pos, adv_pos, max_step, chess_board)
+
+            
+        
+
 
     def get_moves(self, chess_board, my_pos, max_step, adv_pos, moves):
 
@@ -612,7 +633,7 @@ class StudentAgent(Agent):
         return ((r, c), minDist[1])
 
     def remove_suicidal_moves(self, my_pos, adv_pos, chess_board, moves):
-        good_moves = moves
+        good_moves = deepcopy(moves)
         for move in moves:
             pos, dir = move
             r, c = pos
@@ -634,7 +655,7 @@ class StudentAgent(Agent):
         row = 0
         column = 0
         points = 0
-        scale = 0.25
+        scale = 3
 
         while row < size:
             a_row = []
@@ -673,60 +694,113 @@ class StudentAgent(Agent):
 
         score_position = score_position_me - score_position_adv
 
-        return move_socre + score_walls + score_position
-
+        return round(move_score + score_walls + score_position, 2)
 
 
 # -----------------------------------------------------------------------------------------------------------------
     # initialize a graph of depth n
-    bestscore = -np.inf
 
-    def alpha_beta(self, move, chess_board, max_step, depth, alpha, beta):
+    def getNextMoves(self, chess_board, my_pos, max_step, adv_pos):
+        moves = self.get_moves(chess_board, my_pos, max_step,adv_pos, [])
+        return self.total_moves(moves, chess_board)
+
+    def alpha_beta(self, chess_board, max_step, depth, alpha, beta, my_pos, adv_pos, maxPlayer):
         if time.time() - start_time > move_time:
-            return None, None
+            return None
 
+        end = self.check_endgame(chess_board, my_pos, adv_pos)
+
+        if end[0]:
+            if maxPlayer:
+                if end[1] > end[2]:
+                    return np.inf
+                elif end[1] < end[2]:
+                    return -np.inf
+                else:
+                    return 0
+            else:
+                if end[1] > end[2]:
+                    return -np.inf
+                elif end[1] < end[2]:
+                    return np.inf
+                else:
+                    return 0
+        
         if depth == 0:
-            return self.heuristic(move)
+            return self.heuristic_function(chess_board, my_pos, adv_pos, max_step)
 
-        def find(move1):
-            pos, dir = move1
-            moves = self.get_moves(chess_board, pos, max_step, [])
-            return self.total_moves(moves, chess_board)
+        if maxPlayer:
+            maxEval = -np.inf
 
-        final_moves = find(move)
+            nextMoves = self.getNextMoves(chess_board, my_pos, max_step, adv_pos)
 
-        for m in final_moves:
-            chess_board, new_pos = self.makemove(chess_board, m)
-            score = -self.alpha_beta(m, chess_board,
-                                     max_step - 1, -alpha, -beta)
-            if score > bestscore:
-                bestscore = score
-            chess_board = self.undomove(chess_board, move)
-            if bestscore > alpha:
-                alpha = bestscore
-            if alpha >= beta:
-                break
+            for m in nextMoves:
+                temp = my_pos
+                chess_board, new_pos = self.makemove(chess_board, m)
+                my_pos = new_pos
 
-        return bestscore
+                score = self.alpha_beta(chess_board, max_step, depth - 1, alpha, beta, my_pos, adv_pos, False)
+
+                chess_board = self.undomove(chess_board, m)
+                my_pos = temp
+
+                if score == None:
+                    return None
+                
+
+                maxEval = max(maxEval, score)
+                alpha = max(alpha, maxEval)
+
+                if beta <= alpha:
+                    break
+
+            return maxEval
+
+        else:   # MinPlayer
+            minEval = np.inf
+            nextMoves = self.getNextMoves(chess_board, adv_pos, max_step, my_pos)
+
+            for m in nextMoves:
+                temp = adv_pos
+                chess_board, new_pos = self.makemove(chess_board, m)
+                adv_pos = new_pos
+
+                score = self.alpha_beta(chess_board, max_step, depth - 1, alpha, beta, my_pos, adv_pos, True)
+
+                chess_board = self.undomove(chess_board, m)
+                adv_pos = temp
+
+                if score == None:
+                    return None
+                
+
+                minEval = min(minEval, score)
+                beta = min(beta, minEval)
+
+                if beta <= alpha:
+                    break
+
+            return minEval
+
 
     # returns a tuple (chess_board, new_pos)
     def makemove(self, chess_board, move):
         new_pos, dir = move
         r, c = new_pos
-        self.set_barrier(self, chess_board, r, c, dir, True)
+        self.set_barrier(chess_board, r, c, dir, True)
         return chess_board, new_pos
 
     # return chess_board with move undone
     def undomove(self, chess_board, move):
         pos, dir = move
         r, c = pos
-        self.set_barrier(self, chess_board, r, c, dir, False)
+        self.set_barrier(chess_board, r, c, dir, False)
         return chess_board
 
     def heuristic_score_move(self, chess_board, my_pos, adv_pos, max_step):
-        my_moves = self.get_moves(chess_board, my_pos, max_step, [])
+        my_moves = self.get_moves(chess_board, my_pos, max_step, adv_pos, [])
         number1 = len(self.total_moves(my_moves, chess_board))
-        adv_moves = self.get_moves(chess_board, adv_pos, max_step, [])
+        adv_moves = self.get_moves(chess_board, adv_pos, max_step, adv_pos, [])
         number2 = len(self.total_moves(adv_moves, chess_board))
 
         return (number1 - number2) * 0.3 #scale factor
