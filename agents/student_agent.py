@@ -524,14 +524,6 @@ class StudentAgent(Agent):
         return count
 
 # -----------------------------------------------------------------------------------------------------------------
-    def set_barrier(self, chess_board, r, c, dir):
-        # Set the barrier to True
-        chess_board[r, c, dir] = True
-        # Set the opposite barrier to True
-        move = self.directions[dir]
-        chess_board[r + move[0], c + move[1], self.opposites[dir]] = True
-
-# --------------------------------------------------------------------------------------------------------------------------------------
     def set_barrier(self,chess_board, r, c, dir, exist):
 
         # Set the barrier to True
@@ -539,6 +531,9 @@ class StudentAgent(Agent):
         # Set the opposite barrier to True
         move = self.directions[dir]
         chess_board[r + move[0], c + move[1], self.opposites[dir]] = exist
+
+# --------------------------------------------------------------------------------------------------------------------------------------
+    
 
     # If the opponent is surrounded by 2 walls, return the square the move that places a wall s.t. the opponent must flee towards a border
     # Returns 0 if the opponent is not surrounded by exactly 2 walls
