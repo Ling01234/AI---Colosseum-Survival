@@ -637,8 +637,6 @@ class StudentAgent(Agent):
         if time.time() - start_time > move_time:
             return None, None
 
-        #bestmove and bestscore
-
         if depth == 0:
             return self.heuristic(move)
 
@@ -650,15 +648,12 @@ class StudentAgent(Agent):
         final_moves = find(move)
 
         for m in final_moves:
-            # WRITE MAKEMOVE
-            self.makemove(m)
-            next_moves = find(m)
+            chess_board, new_pos = self.makemove(chess_board, m)
             score = -self.alpha_beta(m, chess_board,
                                      max_step - 1, -alpha, -beta)
             if score > bestscore:
                 bestscore = score
-                # WRITE UNDOMOVE
-            self.undomove(m)
+            chess_board = self.undomove(chess_board, move)
             if bestscore > alpha:
                 alpha = bestscore
             if alpha >= beta:
@@ -666,17 +661,16 @@ class StudentAgent(Agent):
 
         return bestscore
 
-    # visited = []
-    # queue = []
+    # returns a tuple (chess_board, new_pos)
+    def makemove(self, chess_board, move):
+        new_pos, dir = move
+        r, c = new_pos
+        self.set_barrier(self, chess_board, r, c, dir, True)
+        return chess_board, new_pos
 
-    # def bfs(self, visited, graph, move):
-
-    #     pos, dir = move
-    #     r, c = move
-    #     visited.append(move)
-    #     queue.append(move)
-
-    #     while queue:
-    #         s = queue.pop(0)
-    #         print(s, end=" ")
-    #     pass
+    # return chess_board with move undone
+    def undomove(self, chess_board, move):
+        pos, dir = move
+        r, c = pos
+        self.set_barrier(self, chess_board, r, c, dir, False)
+        return chess_board
