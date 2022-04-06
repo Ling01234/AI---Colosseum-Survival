@@ -8,53 +8,119 @@ Brandon Ma, 260983550}
 \begin{document}
 \title{AI Final Project Report Winter 2022}    
 \maketitle
+
+
 \section{Motivation}
 \subsection{Approach}
 \paragraph{March 25th 2022}
-Today, we played a few games against each other in order to understand the fundamentals 
-of the game as well as to develop a few basic strategies. Our first instinct is to avoid 
-corners as we can easily get boxed in if we are near corners. This means that we would 
+Today, we played a few games against each other. We believe that in order to design a good AI agent, 
+we must first understand the fundamentals of the game as well as to develop a few basic strategies. 
+Our first instinct is to avoid 
+corners as we can easily get boxed in. This means that generally speaking, we would 
 like to move towards the center. 
-\paragraph{} We also discussed about strategies to inplement our code. First, we need a 
-heuristic function for our agent to evaluate the current position. Given the maximum steps 
-allowed and the heuristic function, the agent will compute an evaluation for each of the 
-reachable squares. The agent will then pick the best square and make its move. Our heuristic 
-function will be based on the following ideas:
+
+
+\section{Theoretical Approach}
+\subsection{Basic Strategies}
+First, we need to implement some basic strategies. We implemented a Depth First Search in order to enumerate 
+all the possible moves given a specific position, a chess board and a maximum number of steps. Below we 
+have some other basic strategies:
 \begin{enumerate}
-    \item At every turn, agent checks if we can win in 1 (or 2 if allowed) move(s). 
-    \item In case our heuristic function of a tie between two squares, our agent will prefer to move towards the center.
-    \item check how many walls are around our agent with a radius of 1 step. 
-    If our agent has many walls next to it, it should try and escape.
-    \item Use minimax and alpha-beta pruning near end-game so that we can search at a deeper depth. 
-    \item Use BFS when evaluating minimax so that we can maximize the depth computed given a time limit. 
+    \item At every turn, our agent checks if it can win in 1 move. 
     \item Trying to box in the opponent as much as possible.
     \item Use our agent as a wall to limit the opponent's movement.
-    \item If the opponent is surround by two walls, try to box the opponent towards the edge of the chess board
-    \item A heuristic based on the number of squares you control (i.e. the squares you can 
-    get to with your moves). The squares that both players control don't count. 
-    \item Opening as player A:
-    \begin{enumerate}
-        \item Move towards the middle, and do NOT put a wall towards the opponent. 
-        The idea is to move towards the center and control the oppoenent's "territory". 
-    \end{enumerate}
-    \item Opening as player B: 
-    \item Middle game: 
-    \item End game: 
-    \begin{enumerate}
-        \item if there exist a wall in the board that we can place to completely divide the two players, then we're 
-        in an end-game.
-        \item (Total number of possible walls in the areas that the players can go to) - constant
-        \item NEED QUANTIFIER TO CHECK HOW MANY SQUARES WE'RE LOSING
-        \item Want to go towards the closing area.
-    \end{enumerate}
-    \item When there are a lot of walls on the board, use minimax with alpha-beta pruning at very highg depths
+    \item Make an heursitic function that is balanced between centralization, not getting trapped and cornerning the oppponent. 
 \end{enumerate}
-dddddd
+\subsection{More Complexe Functions}
+We also implemented some other functions that are more complexe, such as minimax and alpha-beta pruning. 
+The goal is to use a heuristic function to give a score to each move. This implies that the agent can 
+decide which move has better winning chances relative to others. We also have functions to count each player's 
+potential territory. This is particularly useful in endgames, where 1 or 2 walls in the world ends the game. 
+
+\section{Advantages and Disadvantages}
+\subsection{Advantages}
+In our algorithm, on top of minimax, we have implemented a mating search. This means that up to a certain depth, 
+our algorithm can find a forced win by choosing a sequence of moves (very much like Chess). This function is used 
+in conjuction with the minimax and alpha-beta pruning. 
+\subsection{Disadvantages}
+One of the disadvantages of our approach using minimax is that this algorithm assumes that the opponent plays 
+the best possible move when it's their turn. This implies that if the opponent is not optimized (i.e. versus a 
+random agent or event another student's agent), and doesn't play the best move, then we could've potentially 
+obtained a better score by choosing another move. 
+\subsection{Expected Failure}
+Some expected failures. 
+\subsection{Weaknesses}
+Some weaknesses. 
+
+\section{Other Approaches}
+We've tried other approaches at the beginning such as using a Breadth First Search in order to generate the 
+tree of possible moves. We realized that at each iteration of a Breadth First Search, 
+we would also have to keep track of 
+all the nodes up to the depth that we are searching for. On the other hand, an Iterative Deepening Search will not 
+have to keep all of them in memory since either some nodes are already visited or they are nodes that we will 
+visit later. Not to mention, Iterative Deepening Search also does better in our situation since we have a time 
+constraint. In the event that we reach the time limit, the algorithm will still 
+have some sense of what a good score is even without 
+a full traversal of the desired depth. 
+
+\section{Further Improvements}
+We believe that one improvement to our agent can be improving its heuristic with some added features to consider 
+such as: 
+\begin{enumerate}
+    \item some extra feature
+\end{enumerate}
 
 
-Balance between \\
-1) centralization\\
-2) not getting trapped\\
-3) aggressive (blocking opponent's moves)\\
+
+
+
+
+
+
+
+
+
+
+% \paragraph{} We also discussed about strategies to inplement our code. First, we need a 
+% heuristic function for our agent to evaluate the current position. Given the maximum steps 
+% allowed and the heuristic function, the agent will compute an evaluation for each of the 
+% reachable squares. The agent will then pick the best square and make its move. Our heuristic 
+% function will be based on the following ideas:
+% \begin{enumerate}
+%     \item At every turn, agent checks if we can win in 1 (or 2 if allowed) move(s). 
+%     \item In case our heuristic function of a tie between two squares, our agent will prefer to move towards the center.
+%     \item check how many walls are around our agent with a radius of 1 step. 
+%     If our agent has many walls next to it, it should try and escape.
+%     \item Use minimax and alpha-beta pruning near end-game so that we can search at a deeper depth. 
+%     \item Use BFS when evaluating minimax so that we can maximize the depth computed given a time limit. 
+%     \item Trying to box in the opponent as much as possible.
+%     \item Use our agent as a wall to limit the opponent's movement.
+%     \item If the opponent is surround by two walls, try to box the opponent towards the edge of the chess board
+%     \item A heuristic based on the number of squares you control (i.e. the squares you can 
+%     get to with your moves). The squares that both players control don't count. 
+%     \item Opening as player A:
+%     \begin{enumerate}
+%         \item Move towards the middle, and do NOT put a wall towards the opponent. 
+%         The idea is to move towards the center and control the oppoenent's "territory". 
+%     \end{enumerate}
+%     \item Opening as player B: 
+%     \item Middle game: 
+%     \item End game: 
+%     \begin{enumerate}
+%         \item if there exist a wall in the board that we can place to completely divide the two players, then we're 
+%         in an end-game.
+%         \item (Total number of possible walls in the areas that the players can go to) - constant
+%         \item NEED QUANTIFIER TO CHECK HOW MANY SQUARES WE'RE LOSING
+%         \item Want to go towards the closing area.
+%     \end{enumerate}
+%     \item When there are a lot of walls on the board, use minimax with alpha-beta pruning at very highg depths
+% \end{enumerate}
+% dddddd
+
+
+% Balance between \\
+% 1) centralization\\
+% 2) not getting trapped\\
+% 3) aggressive (blocking opponent's moves)\\
 
 \end{document}
