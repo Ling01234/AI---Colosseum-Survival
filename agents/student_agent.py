@@ -661,9 +661,9 @@ class StudentAgent(Agent):
 
     def heuristic_function(self, chess_board, my_pos, adv_pos, max_step, move):
 
-        self.limit_opponent_moves(chess_board, adv_pos, moves, max_step)
+        self.heuristic_score_move(chess_board, my_pos, adv_pos, max_step)
 
-        self.heuristic_walls(adv_pos, chess_board, moves, max_step)
+        self.heuristic_score_walls(my_pos, adv_pos, chess_board)
 
 
 
