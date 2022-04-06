@@ -1,6 +1,6 @@
 # Fdb version 3
-["pdflatex"] 1649208038 "c:/final-project-boosted/report/report.tex" "report.pdf" "report" 1649208039
-  "c:/final-project-boosted/report/report.tex" 1649208037 6282 2b52f6f5a58ae19390d1a96a83591879 ""
+["pdflatex"] 1649209205 "c:/final-project-boosted/report/report.tex" "report.pdf" "report" 1649209206
+  "c:/final-project-boosted/report/report.tex" 1649209205 6423 b4017f9df139e9ef1f2deac0a2f32f1c ""
   "c:/texlive/2021/texmf-dist/fonts/map/fontname/texfonts.map" 1648141745 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2021/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1648139777 1004 54797486969f23fa377b128694d548df ""
   "c:/texlive/2021/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1648139777 916 f87d7c45f9c908e672703b83b72241a3 ""
@@ -29,6 +29,7 @@
   "c:/texlive/2021/texmf-dist/tex/latex/base/article.cls" 1648142785 20144 8a7de377ae7a11ee924a7499611f5a9d ""
   "c:/texlive/2021/texmf-dist/tex/latex/base/size12.clo" 1648142785 8449 bc7344e882df4d7e51c046514dee83e4 ""
   "c:/texlive/2021/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty" 1648141383 13886 d1306dcf79a944f6988e688c1785f9ce ""
+  "c:/texlive/2021/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty" 1648141544 17086 7ed8cbc4d361ec87392817e0dd4f65ec ""
   "c:/texlive/2021/texmf-dist/tex/latex/graphics-cfg/graphics.cfg" 1648142055 1224 978390e9c2234eab29404bc21b268d1e ""
   "c:/texlive/2021/texmf-dist/tex/latex/graphics-def/pdftex.def" 1648142056 19103 48d29b6e2a64cb717117ef65f107b404 ""
   "c:/texlive/2021/texmf-dist/tex/latex/graphics/graphics.sty" 1648142052 18399 7e40f80366dffb22c0e7b70517db5cb4 ""
@@ -41,8 +42,8 @@
   "c:/texlive/2021/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1648147184 4448422 1ce8db434ffa4259b75148f2b12051ea ""
   "c:/texlive/2021/texmf-var/web2c/pdftex/pdflatex.fmt" 1648147286 2826133 03fdbff0c45cfbf2cbb83139fb3a6d1f ""
   "c:/texlive/2021/texmf.cnf" 1648147153 713 e69b156964470283e0530f5060668171 ""
-  "report.aux" 1649208039 1403 9ca16ecd1018543706a1acb1dc0d5fb5 "pdflatex"
-  "report.tex" 1649208037 6282 2b52f6f5a58ae19390d1a96a83591879 ""
+  "report.aux" 1649209206 1403 9ca16ecd1018543706a1acb1dc0d5fb5 "pdflatex"
+  "report.tex" 1649209205 6423 b4017f9df139e9ef1f2deac0a2f32f1c ""
   (generated)
   "report.aux"
   "report.log"
