@@ -26,7 +26,7 @@ class StudentAgent(Agent):
             "d": 2,
             "l": 3,
         }
-        
+
         self.opposites = {0: 2, 1: 3, 2: 0, 3: 1}
         self.directions = ((-1, 0), (0, 1), (1, 0), (0, -1))
 
@@ -46,7 +46,6 @@ class StudentAgent(Agent):
         Please check the sample implementation in agents/random_agent.py or agents/human_agent.py for more details.
         """
         # Get an array of all possible squares we can move to
-        
 
         # time constraint
         global start_time
@@ -57,31 +56,31 @@ class StudentAgent(Agent):
         moves = self.get_moves(chess_board, my_pos, max_step, adv_pos, [])
         final_moves = self.total_moves(moves, chess_board)
 
-        ok_moves = self.remove_suicidal_moves(my_pos, adv_pos, chess_board, final_moves)
+        ok_moves = self.remove_suicidal_moves(
+            my_pos, adv_pos, chess_board, final_moves)
 
         # check if mating is possible
         mate = self.check_instant_win(
             my_pos, adv_pos, chess_board, final_moves)
-        
+
         if len(mate) != 0:
             return mate[0]
 
         bad_move = self.remove_box_myself(my_pos, chess_board)
-        if bad_move !=0 and bad_move in ok_moves:
-            ok_moves.remove(bad_move) 
-        
+        if bad_move != 0 and bad_move in ok_moves:
+            ok_moves.remove(bad_move)
+
         good_move = self.box_opponent(adv_pos, chess_board)
         if good_move != 0 and good_move in final_moves:
             return good_move
-        
-        if len(ok_moves)!=0:
+
+        if len(ok_moves) != 0:
             return random.choice(ok_moves)
 
         try:
             return random.choice(final_moves)
         except:
-            return self.random_walk(my_pos, adv_pos, max_step,chess_board)
-            
+            return self.random_walk(my_pos, adv_pos, max_step, chess_board)
 
         for depth in range(100):
             score, move = self.alpha_beta(
@@ -100,24 +99,27 @@ class StudentAgent(Agent):
         moves.append(my_pos)
 
         # Check the right
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["r"]] and (r, c + 1) not in moves and not (adv_r==r and adv_c== c+1)):
-            moves + self.get_moves(chess_board, (r, c + 1), max_step-1,adv_pos, moves)
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["r"]] and (r, c + 1) not in moves and not (adv_r == r and adv_c == c+1)):
+            moves + self.get_moves(chess_board, (r, c + 1),
+                                   max_step-1, adv_pos, moves)
 
         # Check the down
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["d"]] and (r + 1, c) not in moves and not (adv_r==r+1 and adv_c== c)):
-            moves + self.get_moves(chess_board, (r + 1, c), max_step-1,adv_pos, moves)
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["d"]] and (r + 1, c) not in moves and not (adv_r == r+1 and adv_c == c)):
+            moves + self.get_moves(chess_board, (r + 1, c),
+                                   max_step-1, adv_pos, moves)
 
         # Check the left
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["l"]] and (r, c - 1) not in moves and not (adv_r==r and adv_c== c-1)):
-            moves + self.get_moves(chess_board, (r, c - 1), max_step-1,adv_pos, moves)
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["l"]] and (r, c - 1) not in moves and not (adv_r == r and adv_c == c-1)):
+            moves + self.get_moves(chess_board, (r, c - 1),
+                                   max_step-1, adv_pos, moves)
 
         # Check the up
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["u"]] and (r - 1, c) not in moves and not (adv_r==r-1 and adv_c== c)):
-            moves + self.get_moves(chess_board, (r - 1, c), max_step-1,adv_pos, moves)
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["u"]] and (r - 1, c) not in moves and not (adv_r == r-1 and adv_c == c)):
+            moves + self.get_moves(chess_board, (r - 1, c),
+                                   max_step-1, adv_pos, moves)
 
         return moves
-    
-    
+
     # --------------------------------------------------------------------------------------------------------------------------------------
 
     def random_walk(self, my_pos, adv_pos, max_step, chess_board):
@@ -515,16 +517,16 @@ class StudentAgent(Agent):
         for i in range(0, n+1):
             count = count + \
                 self.check_surrounding_outside_walls(
-                    my_pos, chess_board, i)/(i+1)
+                    my_pos, chess_board, i)/(2 * i+1)
             if i > 0:
                 count = count + \
                     self.check_surrounding_inside_walls(
-                        my_pos, chess_board, i)/(i+1)
+                        my_pos, chess_board, i)/(2 * i+1)
 
         return count
 
 # -----------------------------------------------------------------------------------------------------------------
-    def set_barrier(self,chess_board, r, c, dir, exist):
+    def set_barrier(self, chess_board, r, c, dir, exist):
 
         # Set the barrier to True
         chess_board[r, c, dir] = exist
@@ -533,26 +535,25 @@ class StudentAgent(Agent):
         chess_board[r + move[0], c + move[1], self.opposites[dir]] = exist
 
 # --------------------------------------------------------------------------------------------------------------------------------------
-    
 
     # If the opponent is surrounded by 2 walls, return the square the move that places a wall s.t. the opponent must flee towards a border
     # Returns 0 if the opponent is not surrounded by exactly 2 walls
+
     def box_opponent(self, adv_pos, chess_board):
-        if self.check_surroundings_walls(adv_pos, chess_board, 0)!=2:
+        if self.check_surroundings_walls(adv_pos, chess_board, 0) != 2:
             return 0
 
-        
-        r,c = adv_pos
-        possible_directions = self.check_wall(r,c,chess_board)
-        
+        r, c = adv_pos
+        possible_directions = self.check_wall(r, c, chess_board)
+
         maxCoord = chess_board.shape[0]
         minDist = (100, 0)  # default: (distance, direction)
-        
 
         for dir in possible_directions:
-            r,c = adv_pos
+            r, c = adv_pos
             count = 0   # Counts number of squares from adv_pos to a border of the chess board
-            opp_dir = self.opposites[self.dir_map[dir]]   # Get the opposite direction
+            # Get the opposite direction
+            opp_dir = self.opposites[self.dir_map[dir]]
 
             # While the coordinates are within the bounds of the board...
             while r < maxCoord and r >= 0 and c < maxCoord and c >= 0:
@@ -560,13 +561,11 @@ class StudentAgent(Agent):
                 c = c + self.directions[opp_dir][1]
                 count = count + 1
 
-            
             if count < minDist[0]:
                 minDist = (count, self.dir_map[dir])
 
-
         # Now we have the wall that we want to place. We must get the move for our agent
-        r,c = adv_pos
+        r, c = adv_pos
         dir = minDist[1]
 
         # Move one square towards dir
@@ -577,25 +576,24 @@ class StudentAgent(Agent):
         dir = self.opposites[dir]
 
         # Return the move
-        return ((r,c), dir)
+        return ((r, c), dir)
 
     # I am between 2 walls, remove moves that will push myself towards a border
     def remove_box_myself(self, my_pos, chess_board):
-        if self.check_surroundings_walls(my_pos, chess_board, 0)!=2:
+        if self.check_surroundings_walls(my_pos, chess_board, 0) != 2:
             return 0
 
-        
-        r,c = my_pos
-        possible_directions = self.check_wall(r,c,chess_board)
-        
+        r, c = my_pos
+        possible_directions = self.check_wall(r, c, chess_board)
+
         maxCoord = chess_board.shape[0]
         minDist = (100, 0)  # default: (distance, direction)
-        
 
         for dir in possible_directions:
-            r,c = my_pos
+            r, c = my_pos
             count = 0   # Counts number of squares from my_pos to a border of the chess board
-            opp_dir = self.opposites[self.dir_map[dir]]   # Get the opposite direction
+            # Get the opposite direction
+            opp_dir = self.opposites[self.dir_map[dir]]
 
             # While the coordinates are within the bounds of the board...
             while r < maxCoord and r >= 0 and c < maxCoord and c >= 0:
@@ -603,28 +601,25 @@ class StudentAgent(Agent):
                 c = c + self.directions[opp_dir][1]
                 count = count + 1
 
-            
             if count > minDist[0]:
                 minDist = (count, self.dir_map[dir])
 
-
         # Return the move
-        return ((r,c), minDist[1])
+        return ((r, c), minDist[1])
 
     def remove_suicidal_moves(self, my_pos, adv_pos, chess_board, moves):
         good_moves = moves
         for move in moves:
             pos, dir = move
             r, c = pos
-            self.set_barrier(chess_board,r,c,dir, True)
-            
+            self.set_barrier(chess_board, r, c, dir, True)
+
             is_endgame, my_score, adv_score = self.check_endgame(
                 chess_board, pos, adv_pos)
             if is_endgame and my_score < adv_score:
                 good_moves.remove(move)
 
-
-            self.set_barrier(chess_board,r,c,dir, False)
+            self.set_barrier(chess_board, r, c, dir, False)
 
         return good_moves
 
@@ -674,3 +669,53 @@ class StudentAgent(Agent):
         r, c = pos
         self.set_barrier(self, chess_board, r, c, dir, False)
         return chess_board
+
+    def limit_opponent_moves(self, chess_board, adv_pos, moves, max_step):
+        sum = 0
+        d = dict()
+
+        # given a position, return the size of possible moves
+        def find(pos, chess_board1):
+            moves = self.get_moves(chess_board1, pos, max_step, [])
+            return len(self.total_moves(moves, chess_board1))
+
+        for move in moves:
+            chess_board, new_pos = self.makemove(chess_board, move)
+            count = find(adv_pos, chess_board)
+            d[move] = count
+            sum += count
+            self.undomove(chess_board, move)
+        average = sum / len(moves)
+
+        for move in d:
+            if d[move] < average:
+                d[move] = 1
+            else:
+                d[move] = 0
+        return d
+
+    # check_surroundings_walls(self, my_pos, chess_board, n)
+
+    def heuristic_walls(self, adv_pos, chess_board, moves, max_step):
+        n = chess_board.shape[0] // 2
+        total_points = 4 * n
+        d = dict()
+
+        def find(move):
+            pos, dir = move
+            moves1 = self.get_moves(chess_board, pos, max_step, [])
+            return self.total_moves(moves1, chess_board)
+
+        for move in moves:
+            chess_board, new_pos = self.makemove(chess_board, move)
+            number_of_walls = self.check_surroundings_walls(adv_pos, chess_board, n)
+            if number_of_walls <= n:
+                d[move] = 0
+            if number_of_walls > n:
+                d[move] = 1
+            if number_of_walls > 2 * n:
+                d[move] = 2.5
+            if number_of_walls > 3 * n:
+                d[move] = 4
+
+        return d
