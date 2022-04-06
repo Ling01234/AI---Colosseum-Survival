@@ -723,7 +723,7 @@ class StudentAgent(Agent):
 
     # check_surroundings_walls(self, my_pos, chess_board, n)
 
-    def heuristic_score_walls(self, pos, chess_board):
+    def heuristic_score_walls(self, my_pos, adv_pos, chess_board):
         n = chess_board.shape[0] // 4
         
         # total number of points = 4*n
