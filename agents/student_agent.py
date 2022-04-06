@@ -629,7 +629,7 @@ class StudentAgent(Agent):
 # -----------------------------------------------------------------------------------------------------------------
 
  # Squares near borders are worth less points than squares closer to the center
-    def initialize_points_board(chess_board):
+    def initialize_points_board(self, chess_board):
         size = chess_board.shape[0]
         row = 0
         column = 0
@@ -658,6 +658,15 @@ class StudentAgent(Agent):
                 
             self.pointsBoard.append(a_row)
             row = row + 1
+
+    def heuristic_function(self, chess_board, my_pos, adv_pos, max_step, move):
+
+        self.limit_opponent_moves(chess_board, adv_pos, moves, max_step)
+
+        self.heuristic_walls(adv_pos, chess_board, moves, max_step)
+
+
+
 # -----------------------------------------------------------------------------------------------------------------
     # initialize a graph of depth n
     bestscore = -np.inf
@@ -704,52 +713,47 @@ class StudentAgent(Agent):
         self.set_barrier(self, chess_board, r, c, dir, False)
         return chess_board
 
-    def limit_opponent_moves(self, chess_board, adv_pos, moves, max_step):
-        sum = 0
-        d = dict()
+    def heuristic_score_move(self, chess_board, my_pos, adv_pos, max_step):
+        my_moves = self.get_moves(chess_board, my_pos, max_step, [])
+        number1 = len(self.total_moves(my_moves, chess_board))
+        adv_moves = self.get_moves(chess_board, adv_pos, max_step, [])
+        number2 = len(self.total_moves(adv_moves, chess_board))
 
-        # given a position, return the size of possible moves
-        def find(pos, chess_board1):
-            moves = self.get_moves(chess_board1, pos, max_step, [])
-            return len(self.total_moves(moves, chess_board1))
-
-        for move in moves:
-            chess_board, new_pos = self.makemove(chess_board, move)
-            count = find(adv_pos, chess_board)
-            d[move] = count
-            sum += count
-            self.undomove(chess_board, move)
-        average = sum / len(moves)
-
-        for move in d:
-            if d[move] < average:
-                d[move] = 1
-            else:
-                d[move] = 0
-        return d
+        return (number1 - number2) * 0.3 #scale factor
 
     # check_surroundings_walls(self, my_pos, chess_board, n)
 
-    def heuristic_walls(self, adv_pos, chess_board, moves, max_step):
-        n = chess_board.shape[0] // 2
-        total_points = 4 * n
-        d = dict()
+    def heuristic_score_walls(self, pos, chess_board):
+        n = chess_board.shape[0] // 4
+        
+        # total number of points = 4*n
+        my_result = 0
+        adv_result = 0
 
-        def find(move):
-            pos, dir = move
-            moves1 = self.get_moves(chess_board, pos, max_step, [])
-            return self.total_moves(moves1, chess_board)
+        number_of_walls = self.check_surroundings_walls(
+            adv_pos, chess_board, n)
+        if number_of_walls <= n:
+            my_result = 0
+        if number_of_walls > n:
+            my_result = 1
+        if number_of_walls > 2 * n:
+            remy_resultsult = 2.5
+        if number_of_walls > 3 * n:
+            my_result = 4
+        if number_of_walls > 4 * n:
+            my_result = 5
 
-        for move in moves:
-            chess_board, new_pos = self.makemove(chess_board, move)
-            number_of_walls = self.check_surroundings_walls(adv_pos, chess_board, n)
-            if number_of_walls <= n:
-                d[move] = 0
-            if number_of_walls > n:
-                d[move] = 1
-            if number_of_walls > 2 * n:
-                d[move] = 2.5
-            if number_of_walls > 3 * n:
-                d[move] = 4
+        adv_number_of_walls = self.check_surroundings_walls(
+            my_pos, chess_board, n)
+        if adv_number_of_walls <= n:
+            adv_result = 0
+        if adv_number_of_walls > n:
+            adv_result = 1
+        if adv_number_of_walls > 2 * n:
+            adv_result = 2.5
+        if adv_number_of_walls > 3 * n:
+            adv_result = 4
+        if number_of_walls > 4 * n:
+            adv_result = 5
 
-        return d
+        return adv_result - my_result
