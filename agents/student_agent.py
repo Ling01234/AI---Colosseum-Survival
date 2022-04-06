@@ -107,7 +107,7 @@ class StudentAgent(Agent):
             else:
                 print(l)
                 return bestMove
-        
+        print(l)
         return bestMove
         # except:
         #     return self.random_walk(my_pos, adv_pos, max_step, chess_board)
@@ -785,6 +785,7 @@ class StudentAgent(Agent):
 
     # returns a tuple (chess_board, new_pos)
     def makemove(self, chess_board, move):
+        #copyboard = deepcopy(chess_board)
         new_pos, dir = move
         r, c = new_pos
         self.set_barrier(chess_board, r, c, dir, True)
@@ -792,6 +793,7 @@ class StudentAgent(Agent):
 
     # return chess_board with move undone
     def undomove(self, chess_board, move):
+        chess_board = deepcopy(chess_board)
         pos, dir = move
         r, c = pos
         self.set_barrier(chess_board, r, c, dir, False)
