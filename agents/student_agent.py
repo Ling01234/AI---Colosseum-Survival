@@ -29,6 +29,8 @@ class StudentAgent(Agent):
 
         self.opposites = {0: 2, 1: 3, 2: 0, 3: 1}
         self.directions = ((-1, 0), (0, 1), (1, 0), (0, -1))
+        self.pointsBoard = []
+        self.firstTurn = True
 
     def step(self, chess_board, my_pos, adv_pos, max_step):
         """
@@ -45,7 +47,9 @@ class StudentAgent(Agent):
 
         Please check the sample implementation in agents/random_agent.py or agents/human_agent.py for more details.
         """
-        # Get an array of all possible squares we can move to
+        if self.firstTurn:
+            self.initialize_points_board(chess_board)
+       
 
         # time constraint
         global start_time
@@ -53,7 +57,7 @@ class StudentAgent(Agent):
         global move_time
         move_time = 1.95
 
-        moves = self.get_moves(chess_board, my_pos, max_step, adv_pos, [])
+        moves = self.get_moves(chess_board, my_pos, max_step, adv_pos, [])  # Get an array of all possible squares we can move to
         final_moves = self.total_moves(moves, chess_board)
 
         ok_moves = self.remove_suicidal_moves(
@@ -622,8 +626,38 @@ class StudentAgent(Agent):
             self.set_barrier(chess_board, r, c, dir, False)
 
         return good_moves
+# -----------------------------------------------------------------------------------------------------------------
 
+ # Squares near borders are worth less points than squares closer to the center
+    def initialize_points_board(chess_board):
+        size = chess_board.shape[0]
+        row = 0
+        column = 0
+        points = 0
+        scale = 0.25
 
+        while row < size:
+            a_row = []
+            for i in range(size):
+                
+                
+                if (i < size//2 and size%2==1) or (i <= size/2 -1 and size%2==0):
+                    
+                    if (row >= size//2 and size%2==1) or (row > size/2 -1 and size%2==0):
+                        points = round(min(size-1-row,i)* scale,2)
+                    else:
+                        points = round(min(row,i)* 0.3, 2)
+                
+                elif (i >= size//2 and size%2==1) or (i > size/2 -1 and size%2==0):
+                    if (row >= size//2 and size%2==1) or (row > size/2 -1 and size%2==0):
+                        points = round(min(size-1-row,size-i-1)* scale, 2)
+                    else:
+                        points = round(min(row,size-i-1)* scale, 2)
+                
+                a_row.append(points)
+                
+            self.pointsBoard.append(a_row)
+            row = row + 1
 # -----------------------------------------------------------------------------------------------------------------
     # initialize a graph of depth n
     bestscore = -np.inf
