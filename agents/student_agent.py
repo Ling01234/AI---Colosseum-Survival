@@ -94,11 +94,14 @@ class StudentAgent(Agent):
                 chess_board, new_pos = self.makemove(chess_board, move)
                 temp = my_pos
 
-                score = self.alpha_beta(
-                    chess_board, max_step, depth, -np.inf, np.inf, new_pos, adv_pos, True)
+                score = self.alpha_beta(chess_board, max_step, depth, -np.inf, np.inf, new_pos, adv_pos, False)
 
                 chess_board = self.undomove(chess_board, move)
                 my_pos = temp
+
+                if score == None:
+                    print("Timed out at depth", depth,"------------------------------------------")
+                    break
 
                 l[move] = score
 
@@ -109,8 +112,17 @@ class StudentAgent(Agent):
             else:
 
                 print(a)
+                pos, dir = bestMove
+                opponentMoves = self.get_moves(chess_board, adv_pos, max_step, pos, [])
+                print("--------------------------")
+                print(opponentMoves)
                 return bestMove
-        print(l)
+        print("depth 10???")
+        print(a)
+        pos, dir = bestMove
+        opponentMoves = self.get_moves(chess_board, adv_pos, max_step, pos, [])
+        print("--------------------------")
+        print(opponentMoves)
         return bestMove
         # except:
         #     return self.random_walk(my_pos, adv_pos, max_step, chess_board)
@@ -124,23 +136,19 @@ class StudentAgent(Agent):
 
         # Check the right
         if (max_step != 0 and not chess_board[r, c, self.dir_map["r"]] and (r, c + 1) not in moves and not (adv_r == r and adv_c == c+1)):
-            moves + self.get_moves(chess_board, (r, c + 1),
-                                   max_step-1, adv_pos, moves)
+            moves + self.get_moves(chess_board, (r, c + 1), max_step-1, adv_pos, moves)
 
         # Check the down
         if (max_step != 0 and not chess_board[r, c, self.dir_map["d"]] and (r + 1, c) not in moves and not (adv_r == r+1 and adv_c == c)):
-            moves + self.get_moves(chess_board, (r + 1, c),
-                                   max_step-1, adv_pos, moves)
+            moves + self.get_moves(chess_board, (r + 1, c), max_step-1, adv_pos, moves)
 
         # Check the left
         if (max_step != 0 and not chess_board[r, c, self.dir_map["l"]] and (r, c - 1) not in moves and not (adv_r == r and adv_c == c-1)):
-            moves + self.get_moves(chess_board, (r, c - 1),
-                                   max_step-1, adv_pos, moves)
+            moves + self.get_moves(chess_board, (r, c - 1), max_step-1, adv_pos, moves)
 
         # Check the up
         if (max_step != 0 and not chess_board[r, c, self.dir_map["u"]] and (r - 1, c) not in moves and not (adv_r == r-1 and adv_c == c)):
-            moves + self.get_moves(chess_board, (r - 1, c),
-                                   max_step-1, adv_pos, moves)
+            moves + self.get_moves(chess_board, (r - 1, c), max_step-1, adv_pos, moves)
 
         return moves
 
@@ -697,15 +705,11 @@ class StudentAgent(Agent):
 
     def alpha_beta(self, chess_board, max_step, depth, alpha, beta, my_pos, adv_pos, maxPlayer):
         if time.time() - start_time > move_time:
-            print("Timed out at depth", depth,
-                  "------------------------------------------")
             return None
 
         end = self.check_endgame(chess_board, my_pos, adv_pos)
 
         if end[0]:
-            print("game ends at depth ", depth,
-                  "-------------------------------------")
             if end[1] > end[2]:
                 return np.inf
             elif end[1] < end[2]:
@@ -719,16 +723,14 @@ class StudentAgent(Agent):
         if maxPlayer:
             maxEval = -np.inf
 
-            nextMoves = self.getNextMoves(
-                chess_board, my_pos, max_step, adv_pos)
+            nextMoves = self.getNextMoves(chess_board, my_pos, max_step, adv_pos)
 
             for m in nextMoves:
                 temp = my_pos
                 chess_board, new_pos = self.makemove(chess_board, m)
                 my_pos = new_pos
 
-                score = self.alpha_beta(
-                    chess_board, max_step, depth + 1, alpha, beta, my_pos, adv_pos, False)
+                score = self.alpha_beta(chess_board, max_step, depth - 1, alpha, beta, my_pos, adv_pos, False)
                 # print("score in alphabeta MAX: ", score, "with move ", m)
 
                 chess_board = self.undomove(chess_board, m)
@@ -747,8 +749,7 @@ class StudentAgent(Agent):
 
         else:   # MinPlayer
             minEval = np.inf
-            nextMoves = self.getNextMoves(
-                chess_board, adv_pos, max_step, my_pos)
+            nextMoves = self.getNextMoves(chess_board, adv_pos, max_step, my_pos)
 
             for m in nextMoves:
                 temp = adv_pos
@@ -756,7 +757,7 @@ class StudentAgent(Agent):
                 adv_pos = new_pos
 
                 score = self.alpha_beta(
-                    chess_board, max_step, depth + 1, alpha, beta, adv_pos, my_pos, True)
+                    chess_board, max_step, depth - 1, alpha, beta, my_pos, adv_pos, True)
                 # print("score in alphabeta MIN: ", score, "with move ", m)
                 chess_board = self.undomove(chess_board, m)
                 adv_pos = temp
