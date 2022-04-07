@@ -83,8 +83,8 @@ class StudentAgent(Agent):
                     my_pos = temp
 
                     if score == None:
-                        # print("Timed out at depth", depth,
-                        #   "------------------------------------------")
+                        print("Timed out at depth", depth,
+                          "------------------------------------------")
                         break
 
                     l[move] = score
@@ -714,10 +714,12 @@ class StudentAgent(Agent):
 
     def getNextMoves(self, chess_board, my_pos, max_step, adv_pos):
         moves = self.get_moves(chess_board, my_pos, max_step, adv_pos, {})
-        return self.total_moves(moves, chess_board)
+        final_moves = self.total_moves(moves, chess_board)
+        return self.eliminate(chess_board, final_moves)
 
     def alpha_beta(self, chess_board, max_step, depth, alpha, beta, my_pos, adv_pos, maxPlayer):
         if time.time() - start_time > move_time:
+            print(time.time()-start_time)
             return None
 
         end = self.check_endgame(chess_board, my_pos, adv_pos)
@@ -853,12 +855,13 @@ class StudentAgent(Agent):
 
     def eliminate(self, chess_board, moves):
             new = []
-            if len(moves) > 20:
+            if len(moves) > 40:
+                print("Eliminating moves...")
                 for move in moves:
                     pos, dir = move
                     r, c = pos
                     if r == 0 or r == chess_board.shape[0] - 1 or c == 0 or c == chess_board.shape[0]:
                         continue
                     else:
-                        new.add(move)
+                        new.append(move)
             return new
