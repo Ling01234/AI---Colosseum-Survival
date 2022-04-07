@@ -52,7 +52,7 @@ class StudentAgent(Agent):
         global start_time
         start_time = time.time()
         global move_time
-        move_time = 1.95
+        move_time = 1.98
 
         if self.firstTurn:
             self.initialize_points_board(chess_board)
@@ -133,23 +133,25 @@ class StudentAgent(Agent):
         adv_r, adv_c = adv_pos
 
         moves.append(my_pos)
+        
 
         # Check the right
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["r"]] and (r, c + 1) not in moves and not (adv_r == r and adv_c == c+1)):
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["r"]] and not (adv_r == r and adv_c == c+1)):
             moves + self.get_moves(chess_board, (r, c + 1), max_step-1, adv_pos, moves)
 
         # Check the down
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["d"]] and (r + 1, c) not in moves and not (adv_r == r+1 and adv_c == c)):
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["d"]] and not (adv_r == r+1 and adv_c == c)):
             moves + self.get_moves(chess_board, (r + 1, c), max_step-1, adv_pos, moves)
 
         # Check the left
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["l"]] and (r, c - 1) not in moves and not (adv_r == r and adv_c == c-1)):
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["l"]] and not (adv_r == r and adv_c == c-1)):
             moves + self.get_moves(chess_board, (r, c - 1), max_step-1, adv_pos, moves)
 
         # Check the up
-        if (max_step != 0 and not chess_board[r, c, self.dir_map["u"]] and (r - 1, c) not in moves and not (adv_r == r-1 and adv_c == c)):
+        if (max_step != 0 and not chess_board[r, c, self.dir_map["u"]] and not (adv_r == r-1 and adv_c == c)):
             moves + self.get_moves(chess_board, (r - 1, c), max_step-1, adv_pos, moves)
 
+        moves = list(dict.fromkeys(moves))
         return moves
 
     # --------------------------------------------------------------------------------------------------------------------------------------
@@ -654,7 +656,7 @@ class StudentAgent(Agent):
         row = 0
         column = 0
         points = 0
-        scale = 3
+        scale = 1
 
         while row < size:
             a_row = []
