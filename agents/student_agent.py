@@ -693,8 +693,7 @@ class StudentAgent(Agent):
 
     def heuristic_function(self, chess_board, my_pos, adv_pos, max_step):
 
-        move_score = self.heuristic_score_move(
-            chess_board, my_pos, adv_pos, max_step)
+        move_score = self.heuristic_score_move(chess_board, my_pos, adv_pos, max_step)*5 
 
         score_walls = self.heuristic_score_walls(my_pos, adv_pos, chess_board)
 
@@ -706,7 +705,7 @@ class StudentAgent(Agent):
 
         score_position = score_position_me - score_position_adv
 
-        return round(move_score + score_walls + score_position, 2)
+        return round(move_score + score_walls + score_position, 3)
 
 
 # -----------------------------------------------------------------------------------------------------------------
@@ -813,7 +812,7 @@ class StudentAgent(Agent):
         adv_moves = self.get_moves(chess_board, adv_pos, max_step, adv_pos, {})
         number2 = len(self.total_moves(adv_moves, chess_board))
 
-        return (number1 - number2) * 0.3  # scale factor
+        return (number1 - number2)  # scale factor
 
     # check_surroundings_walls(self, my_pos, chess_board, n)
 
@@ -826,42 +825,45 @@ class StudentAgent(Agent):
 
         number_of_walls = self.check_surroundings_walls(
             adv_pos, chess_board, n)
-        if number_of_walls <= n:
-            my_result = 0
-        if number_of_walls > n:
-            my_result = 1
-        if number_of_walls > 2 * n:
-            remy_resultsult = 2.5
-        if number_of_walls > 3 * n:
-            my_result = 4
+
         if number_of_walls > 4 * n:
             my_result = 5
+        elif number_of_walls > 3 * n:
+            my_result = 4
+        elif number_of_walls > 2 * n:
+            my_result = 2.5
+        elif number_of_walls > n:
+            my_result = 1
+        else:
+            my_result = 0
+        
 
         adv_number_of_walls = self.check_surroundings_walls(
             my_pos, chess_board, n)
-        if adv_number_of_walls <= n:
-            adv_result = 0
-        if adv_number_of_walls > n:
-            adv_result = 1
-        if adv_number_of_walls > 2 * n:
-            adv_result = 2.5
-        if adv_number_of_walls > 3 * n:
-            adv_result = 4
+        
         if number_of_walls > 4 * n:
             adv_result = 5
+        elif adv_number_of_walls > 3 * n:
+            adv_result = 4
+        elif adv_number_of_walls > 2 * n:
+            adv_result = 2.5
+        elif adv_number_of_walls > n:
+            adv_result = 1
+        else:
+            adv_result = 0
 
         return adv_result - my_result
 
 
     def eliminate(self, chess_board, moves):
-            new = []
-            if len(moves) > 40:
-                print("Eliminating moves...")
-                for move in moves:
-                    pos, dir = move
-                    r, c = pos
-                    if r == 0 or r == chess_board.shape[0] - 1 or c == 0 or c == chess_board.shape[0]:
-                        continue
-                    else:
-                        new.append(move)
-            return new
+            # new = []
+            # if len(moves) > 40:
+            #     print("Eliminating moves...")
+            #     for move in moves:
+            #         pos, dir = move
+            #         r, c = pos
+            #         if r == 0 or r == chess_board.shape[0] - 1 or c == 0 or c == chess_board.shape[0]:
+            #             continue
+            #         else:
+            #             new.append(move)
+            return moves
