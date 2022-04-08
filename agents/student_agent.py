@@ -32,6 +32,8 @@ class StudentAgent(Agent):
         self.pointsBoard = []
         self.firstTurn = True
         self.startTime = 0
+        self.middle = 0
+        
 
     def step(self, chess_board, my_pos, adv_pos, max_step):
         """
@@ -57,20 +59,26 @@ class StudentAgent(Agent):
         if self.firstTurn:
             self.initialize_points_board(chess_board)
             self.firstTurn = False
+            self.maxMoves = self.getMaxMoves()
+            self.middle = ((chess_board.shape[0]-1)/2, (chess_board.shape[0]-1)/2)
 
         # Get an array of all possible squares we can move to
         moves = self.get_moves(chess_board, my_pos, max_step, adv_pos, {})
         final_moves = self.total_moves(moves, chess_board)
-        final_moves = self.eliminate(chess_board, final_moves)
+        # print(final_moves)
+        # print("-----------------------------------")
+        # print(final_moves.sort())
+        final_moves = sorted(final_moves, key = lambda x: tuple(np.absolute(tuple(np.subtract(self.middle, x[0])))))
 
 
         if (chess_board.shape[0] <= 12):
 
             bestMove = 0
-            score = 0
+            
             a = {}
             for depth in range(10):
                 l = {}
+                score = None
 
                 for move in final_moves:
                     chess_board, new_pos = self.makemove(chess_board, move)
@@ -83,8 +91,8 @@ class StudentAgent(Agent):
                     my_pos = temp
 
                     if score == None:
-                        print("Timed out at depth", depth,
-                          "------------------------------------------")
+                        # print("Timed out at depth", depth,
+                        #   "------------------------------------------")
                         break
 
                     l[move] = score
@@ -96,7 +104,7 @@ class StudentAgent(Agent):
                 else:
 
                     #print(a)
-                    pos, dir = bestMove
+                    #pos, dir = bestMove
                     # opponentMoves = self.get_moves(
                     # chess_board, adv_pos, max_step, pos, [])
                     # print("--------------------------")
@@ -104,7 +112,7 @@ class StudentAgent(Agent):
                     return bestMove
             #print("depth 10???")
             # print(a)
-            pos, dir = bestMove
+            #pos, dir = bestMove
             # opponentMoves = self.get_moves(
             # chess_board, adv_pos, max_step, pos, [])
             # print("--------------------------")
@@ -667,7 +675,7 @@ class StudentAgent(Agent):
         row = 0
         column = 0
         points = 0
-        scale = 1
+        scale = 2
 
         while row < size:
             a_row = []
@@ -678,7 +686,7 @@ class StudentAgent(Agent):
                     if (row >= size//2 and size % 2 == 1) or (row > size/2 - 1 and size % 2 == 0):
                         points = round(min(size-1-row, i) * scale, 2)
                     else:
-                        points = round(min(row, i) * 0.3, 2)
+                        points = round(min(row, i) * scale, 2)
 
                 elif (i >= size//2 and size % 2 == 1) or (i > size/2 - 1 and size % 2 == 0):
                     if (row >= size//2 and size % 2 == 1) or (row > size/2 - 1 and size % 2 == 0):
@@ -692,10 +700,10 @@ class StudentAgent(Agent):
             row = row + 1
 
     def heuristic_function(self, chess_board, my_pos, adv_pos, max_step):
+        
+        move_score = self.heuristic_score_move(chess_board, my_pos, adv_pos, max_step)*6 
 
-        move_score = self.heuristic_score_move(chess_board, my_pos, adv_pos, max_step)*5 
-
-        score_walls = self.heuristic_score_walls(my_pos, adv_pos, chess_board)
+        score_walls = self.heuristic_score_walls(my_pos, adv_pos, chess_board)*2
 
         r_adv, c_adv = adv_pos
         score_position_adv = self.pointsBoard[r_adv][c_adv]
@@ -706,6 +714,7 @@ class StudentAgent(Agent):
         score_position = score_position_me - score_position_adv
 
         return round(move_score + score_walls + score_position, 3)
+        
 
 
 # -----------------------------------------------------------------------------------------------------------------
@@ -713,12 +722,12 @@ class StudentAgent(Agent):
 
     def getNextMoves(self, chess_board, my_pos, max_step, adv_pos):
         moves = self.get_moves(chess_board, my_pos, max_step, adv_pos, {})
-        final_moves = self.total_moves(moves, chess_board)
-        return self.eliminate(chess_board, final_moves)
+        return self.total_moves(moves, chess_board)
+        
 
     def alpha_beta(self, chess_board, max_step, depth, alpha, beta, my_pos, adv_pos, maxPlayer):
         if time.time() - start_time > move_time:
-            print(time.time()-start_time)
+            #print(time.time()-start_time)
             return None
 
         end = self.check_endgame(chess_board, my_pos, adv_pos)
@@ -747,7 +756,7 @@ class StudentAgent(Agent):
 
                 score = self.alpha_beta(
                     chess_board, max_step, depth - 1, alpha, beta, my_pos, adv_pos, False)
-                # print("score in alphabeta MAX: ", score, "with move ", m)
+                
 
                 chess_board = self.undomove(chess_board, m)
                 my_pos = temp
@@ -775,7 +784,7 @@ class StudentAgent(Agent):
 
                 score = self.alpha_beta(
                     chess_board, max_step, depth - 1, alpha, beta, my_pos, adv_pos, True)
-                # print("score in alphabeta MIN: ", score, "with move ", m)
+                
                 chess_board = self.undomove(chess_board, m)
                 adv_pos = temp
 
@@ -812,7 +821,7 @@ class StudentAgent(Agent):
         adv_moves = self.get_moves(chess_board, adv_pos, max_step, adv_pos, {})
         number2 = len(self.total_moves(adv_moves, chess_board))
 
-        return (number1 - number2)  # scale factor
+        return (number1 - number2)  
 
     # check_surroundings_walls(self, my_pos, chess_board, n)
 
@@ -854,16 +863,3 @@ class StudentAgent(Agent):
 
         return adv_result - my_result
 
-
-    def eliminate(self, chess_board, moves):
-            # new = []
-            # if len(moves) > 40:
-            #     print("Eliminating moves...")
-            #     for move in moves:
-            #         pos, dir = move
-            #         r, c = pos
-            #         if r == 0 or r == chess_board.shape[0] - 1 or c == 0 or c == chess_board.shape[0]:
-            #             continue
-            #         else:
-            #             new.append(move)
-            return moves
