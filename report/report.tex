@@ -2,7 +2,6 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
-\usepackage{graphicx}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
@@ -17,21 +16,23 @@ Brandon Ma, 260983550}
 
 
 \section{Motivation}
-\subsection{Approach}
-\paragraph{March 25th 2022}
-Today, we played a few games against each other. We believe that in order to design a good AI agent, 
-we must first understand the fundamentals of the game as well as to develop a few basic strategies. 
-Our first instinct is to avoid 
-corners and borders as well as being near a lot of walls. Our main strategy is to limit the opponent's 
-movement while allowing ourselves to have a lot of moves. This means that generally speaking, we would 
-like to move towards the center and block the opponent. 
-
+\paragraph{} Considering that Colosseum Survival is a game very similar to Chess and that we're not allowed to 
+use File IO, we considered using either Minimax with Alpha-Beta Pruning or Monte Carlo Tree Search. At 
+lower board sizes, both of these approaches are solid algorithms that can be used for our agent. However, higher board 
+sizes will make MCTS choose moves that are almost at random since the search space is too large. Minimax, on the other 
+hand, may not reach a very high depth, but a good heuristic can compensate for this. This is why we have chosen to 
+implement Minimax with Alpha-Beta Pruning: at lower board sizes, it will see high depths and at higher board 
+sizes, it can follow a general strategy. 
+\paragraph{} The approach that we have chosen to do is trying to reach the highest depth possible within the alloted 
+time. The strategy that we have chosen to do is taking moves that favor a centralized position, limiting opponent's 
+moves and avoiding being boxed in. Details of this strategy is described on the following page. 
+\paragraph{Note:} In this document, the terms "checkmate" and "mate" refer to boxing an opponent. 
+\pagebreak
 
 \section{Theoretical Approach}
-\subsection{Basic Strategies}
 \paragraph{} First, we need to implement some basic strategies. We implemented a Depth First Search in order to enumerate 
-all the possible moves given a specific position, a chess board and a maximum number of steps. Below we 
-have some other basic strategies, we are using a heuristic that is considering the following points at every turn:
+all the possible moves given a specific position, a chess board and a maximum number of steps. We are using a heuristic 
+that is considering the following points at every turn:
 \begin{enumerate}
     \item Check how close we are to the center. The closer we are, the more points we award to our agent. 
     In parallel, we also evaluate how close the opponent is to the center. The heuristic score is given by 
@@ -42,26 +43,31 @@ have some other basic strategies, we are using a heuristic that is considering t
     walls around the opponent. 
     \item Check how many moves our agent and the opponent can make. The heuristic score is given by the 
     number of moves our agent has relative to the number of moves the opponent has. 
+    \item Check if we can checkmate the opponent. If so, the heuristic will give a score of $\infty$ to the position. 
+    However, if the opponent can checkmate our agent, then it will instead have a heuristic score of $-\infty$. 
 \end{enumerate}
 \paragraph{} The algorithm that we have chosen to implement is Minimax with Alpha-Beta Pruning. 
 The goal is to use a heuristic function to give a score to each move. This implies that the agent can 
 decide which move has better winning chances relative to others. The leaf nodes that we get from the Alpha-Beta 
-algorithm are positions that are evaluated according to the three points above, each having a different weight.
+algorithm are positions that are evaluated according to the four points above, each having a different weight.
 We have decided to make our agent more aggressive, thus we are giving a higher scaling factor to limiting the 
 opponent's moves. To help with Alpha-Beta Pruning, we sort the first set of moves in order of closeness to the center.
 \paragraph{} The way we have chosen to perform our search is using Iterative Deepening Search. The algorithm will try to reach the 
-highest depth possible within 2 seconds. If it times out, it will take the best move of the previous depth search. 
+highest depth possible within two seconds. If it times out, it will take the best move of the previous depth search. 
 
 \section{Advantages and Disadvantages}
 \subsection{Advantages}
-\paragraph{} Since we let the algorithm run for the entire 2 seconds, we are able to reach high depth with small size boards. 
+\paragraph{} Since we let the algorithm run for the entire two seconds, we are able to reach high depth with small size boards. 
 Our program is always able to find mate in 1's, or a forced mate and we'll avoid moves that get ourselves 
 checkmated whenever possible. 
 It also favors centralized play, which reduces chances of getting cornered. 
+\paragraph{} Another advantage of our implementation is that we can easily tweak the weights of the heuristic functions 
+such that the agent can adapt to more aggressive/passive plays. 
 \subsection{Disadvantages And Weaknesses}
 \paragraph{} The algorithm doesn't prune as much as we expected. Hence, at higher board sizes, it is only able to reach a maximum 
 depth of 1 in most cases. Furthermore, when the opponent is out of the range of our agent's moves, it will play extremely 
-passively, as it does not know what to do. Due to the nature of Minimax, our agent assumes that the opponent will play 
+passively, as it does not know what to do. In some cases, it even plays a move that disadvantages itself. 
+Due to the nature of Minimax, our agent assumes that the opponent will play 
 optimally. Thus, if the program sees that the opponent can force us into a mate, it will view all 
 moves as a loss and boxes itself. 
 
@@ -83,6 +89,14 @@ times.
 This was likely due to removing moves that could've been the only escape of the agent. It was also difficult to 
 determine an appropriate cutoff value to determine when we would perform this elimination 
 of moves. 
+\paragraph{} Another approach that we have considered is to add a distance heuristic function. 
+If the chessboard is one wall 
+away from ending the game (i.e. either player1 or player2 wins if the wall is placed), then the function 
+would calculate the distance of each possible move that our agent can make towards that game ending wall. 
+The closer the moves are to the wall, the higher score they are given. The issue with this approach is that 
+we cannot use an absolute distance since walls might be in the way. We would have to implement a shortest path 
+algorithm which would take way too much time to compute within a two second timeframe. Hence, we have decided 
+to not follow this approach to allow for potentially higher depth search. 
 
 
 \section{Further Improvements}
@@ -90,9 +104,10 @@ of moves.
 program is to sort the list of possible moves from best to worst before giving it to the algorithm. 
 This way, the pruning can 
 be more efficient, and the bad moves can be eliminated quicker. 
-\paragraph{} Another improvement can be to not set an absolute depth for each branch of possible moves. 
-For example, since the algorithm is limited in how far it can look ahead, it is very possible that it misses 
-a sequenece of moves that can occur at leaf nodes. For example, the agent might want to avoid moving closer 
+\paragraph{} Another improvement is to use Quiescence Search. This consists of
+not setting an absolute depth for each branch of possible moves. 
+Since the algorithm is limited in how far it can look ahead, it is very possible that it misses 
+a sequence of moves that can occur at leaf nodes. For example, the agent might want to avoid moving closer 
 to the opponent because it forces the agent to put a wall "behind", and closing off an area of squares. 
 If the agent only realizes that he loses a good portion of the squares without knowing that this move  
 wins the game or puts the opponent at a great disadvantage, then it will likely not play it. 

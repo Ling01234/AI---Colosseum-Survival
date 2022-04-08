@@ -64,6 +64,8 @@ class StudentAgent(Agent):
         # Get an array of all possible squares we can move to
         moves = self.get_moves(chess_board, my_pos, max_step, adv_pos, {})
         final_moves = self.total_moves(moves, chess_board)
+        final_moves = self.remove_suicidal_moves(
+            my_pos, adv_pos, chess_board, final_moves)
         final_moves = sorted(final_moves, key=lambda x: tuple(
             np.absolute(tuple(np.subtract(self.middle, x[0])))))
 
@@ -96,56 +98,24 @@ class StudentAgent(Agent):
                     if bestMove != 0:
                         return bestMove
                     else:
-                        try:
-                            ok_moves = self.remove_suicidal_moves(
-                                my_pos, adv_pos, chess_board, final_moves)
-
-                            # check if mating is possible
-                            mate = self.check_instant_win(
-                                my_pos, adv_pos, chess_board, ok_moves)
-
-                            if len(mate) != 0:
-                                return mate[0]
-
-                            bad_move = self.remove_box_myself(
-                                my_pos, chess_board)
-                            if bad_move != 0 and bad_move in ok_moves:
-                                ok_moves.remove(bad_move)
-
-                            good_move = self.box_opponent(adv_pos, chess_board)
-                            if good_move != 0 and good_move in final_moves:
-                                return good_move
-
-                            if len(ok_moves) != 0:
-                                return random.choice(ok_moves)
-                        except:
+                        if len(final_moves) != 0:
+                            print(
+                                "choosing random move from final_moves--------------------------------")
+                            return random.choice(final_moves)
+                        else:
+                            print(
+                                "executing random walk----------------------------------")
                             return self.random_walk(my_pos, adv_pos, max_step, chess_board)
 
             return bestMove
 
         except:
-            try:
-                ok_moves = self.remove_suicidal_moves(
-                    my_pos, adv_pos, chess_board, final_moves)
-
-                # check if mating is possible
-                mate = self.check_instant_win(
-                    my_pos, adv_pos, chess_board, ok_moves)
-
-                if len(mate) != 0:
-                    return mate[0]
-
-                bad_move = self.remove_box_myself(my_pos, chess_board)
-                if bad_move != 0 and bad_move in ok_moves:
-                    ok_moves.remove(bad_move)
-
-                good_move = self.box_opponent(adv_pos, chess_board)
-                if good_move != 0 and good_move in final_moves:
-                    return good_move
-
-                if len(ok_moves) != 0:
-                    return random.choice(ok_moves)
-            except:
+            if len(final_moves) != 0:
+                print(
+                    "choosing random move from final_moves 2--------------------------------")
+                return random.choice(final_moves)
+            else:
+                print("executing random walk 2----------------------------------")
                 return self.random_walk(my_pos, adv_pos, max_step, chess_board)
 
     def get_moves(self, chess_board, my_pos, max_step, adv_pos, moves):
@@ -725,6 +695,7 @@ class StudentAgent(Agent):
 
 # -----------------------------------------------------------------------------------------------------------------
     # initialize a graph of depth n
+
 
     def getNextMoves(self, chess_board, my_pos, max_step, adv_pos):
         moves = self.get_moves(chess_board, my_pos, max_step, adv_pos, {})
