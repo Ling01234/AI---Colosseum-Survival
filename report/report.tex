@@ -29,7 +29,7 @@ like to move towards the center and block the opponent.
 
 \section{Theoretical Approach}
 \subsection{Basic Strategies}
-First, we need to implement some basic strategies. We implemented a Depth First Search in order to enumerate 
+\paragraph{} First, we need to implement some basic strategies. We implemented a Depth First Search in order to enumerate 
 all the possible moves given a specific position, a chess board and a maximum number of steps. Below we 
 have some other basic strategies, we are using a heuristic that is considering the following points at every turn:
 \begin{enumerate}
@@ -54,12 +54,12 @@ highest depth possible within 2 seconds. If it times out, it will take the best 
 
 \section{Advantages and Disadvantages}
 \subsection{Advantages}
-Since we let the algorithm run for the entire 2 seconds, we are able to reach high depth with small size boards. 
+\paragraph{} Since we let the algorithm run for the entire 2 seconds, we are able to reach high depth with small size boards. 
 Our program is always able to find mate in 1's, or a forced mate and we'll avoid moves that get ourselves 
 checkmated whenever possible. 
 It also favors centralized play, which reduces chances of getting cornered. 
 \subsection{Disadvantages And Weaknesses}
-The algorithm doesn't prune as much as we expected. Hence, at higher board sizes, it is only able to reach a maximum 
+\paragraph{} The algorithm doesn't prune as much as we expected. Hence, at higher board sizes, it is only able to reach a maximum 
 depth of 1 in most cases. Furthermore, when the opponent is out of the range of our agent's moves, it will play extremely 
 passively, as it does not know what to do. Due to the nature of Minimax, our agent assumes that the opponent will play 
 optimally. Thus, if the program sees that the opponent can force us into a mate, it will view all 
@@ -86,11 +86,20 @@ of moves.
 
 
 \section{Further Improvements}
-We believe that one improvement to our agent can be improving its heuristic with some added features to consider 
-such as: 
-\begin{enumerate}
-    \item 
-\end{enumerate}
+\paragraph{} Considering that we are running a Minimax Algorithm with Alpha-Beta Pruning, a good improvement to our 
+program is to sort the list of possible moves from best to worst before giving it to the algorithm. 
+This way, the pruning can 
+be more efficient, and the bad moves can be eliminated quicker. 
+\paragraph{} Another improvement can be to not set an absolute depth for each branch of possible moves. 
+For example, since the algorithm is limited in how far it can look ahead, it is very possible that it misses 
+a sequenece of moves that can occur at leaf nodes. For example, the agent might want to avoid moving closer 
+to the opponent because it forces the agent to put a wall "behind", and closing off an area of squares. 
+If the agent only realizes that he loses a good portion of the squares without knowing that this move  
+wins the game or puts the opponent at a great disadvantage, then it will likely not play it. 
+A way to get around this is to perform a second round 
+of limited search on the leaf nodes that are "unstable" (like the example above, or any move that puts 
+the agent at an uncomfortable position, but that disadvantages the opponent even more). This way, 
+it resolves the issue in a more dynamic way, and also makes the heuristic more accurate. 
 
 
 
