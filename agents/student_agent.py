@@ -70,8 +70,6 @@ class StudentAgent(Agent):
         try:
 
             bestMove = 0
-
-            a = {}
             for depth in range(10):
                 l = {}
                 score = None
@@ -93,11 +91,35 @@ class StudentAgent(Agent):
 
                 if score != None:
                     bestMove = max(l, key=l.get)
-                    a = l
 
                 else:
+                    if bestMove != 0:
+                        return bestMove
+                    else:
+                        try:
+                            ok_moves = self.remove_suicidal_moves(
+                                my_pos, adv_pos, chess_board, final_moves)
 
-                    return bestMove
+                            # check if mating is possible
+                            mate = self.check_instant_win(
+                                my_pos, adv_pos, chess_board, ok_moves)
+
+                            if len(mate) != 0:
+                                return mate[0]
+
+                            bad_move = self.remove_box_myself(my_pos, chess_board)
+                            if bad_move != 0 and bad_move in ok_moves:
+                                ok_moves.remove(bad_move)
+
+                            good_move = self.box_opponent(adv_pos, chess_board)
+                            if good_move != 0 and good_move in final_moves:
+                                return good_move
+
+                            if len(ok_moves) != 0:
+                                return random.choice(ok_moves)
+                        except:
+                            return self.random_walk(my_pos, adv_pos, max_step, chess_board)
+
             return bestMove
 
         except:
