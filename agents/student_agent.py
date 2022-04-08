@@ -107,7 +107,8 @@ class StudentAgent(Agent):
                             if len(mate) != 0:
                                 return mate[0]
 
-                            bad_move = self.remove_box_myself(my_pos, chess_board)
+                            bad_move = self.remove_box_myself(
+                                my_pos, chess_board)
                             if bad_move != 0 and bad_move in ok_moves:
                                 ok_moves.remove(bad_move)
 
@@ -706,7 +707,7 @@ class StudentAgent(Agent):
     def heuristic_function(self, chess_board, my_pos, adv_pos, max_step):
 
         move_score = self.heuristic_score_move(
-            chess_board, my_pos, adv_pos, max_step)*6
+            chess_board, my_pos, adv_pos, max_step)*10
 
         score_walls = self.heuristic_score_walls(
             my_pos, adv_pos, chess_board)*2
@@ -724,7 +725,6 @@ class StudentAgent(Agent):
 
 # -----------------------------------------------------------------------------------------------------------------
     # initialize a graph of depth n
-
 
     def getNextMoves(self, chess_board, my_pos, max_step, adv_pos):
         moves = self.get_moves(chess_board, my_pos, max_step, adv_pos, {})
@@ -853,7 +853,7 @@ class StudentAgent(Agent):
         adv_number_of_walls = self.check_surroundings_walls(
             my_pos, chess_board, n)
 
-        if number_of_walls > 4 * n:
+        if adv_number_of_walls > 4 * n:
             adv_result = 5
         elif adv_number_of_walls > 3 * n:
             adv_result = 4
